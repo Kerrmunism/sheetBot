@@ -286,12 +286,12 @@ function averagePlayers() {
     totPlayersSort += rankCount[i]
     avgPlayers.push(tmp)
     //console.log(totPlayersSort)
+    client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
   }
   console.log(rankCount)
   console.log(avgPlayers)
   client.channels.cache.get(generalChannelLocal).send("Ready!")
   console.log(g("name"))
-  client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
 }
 everythingElse()
 
@@ -309,7 +309,7 @@ function everythingElse() {
     }
   })
   function processCommand(text) {
-    //client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
+    client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
     let parsedText = ""
     if (text.guild.id == "599005375907495936") {
       parsedText = text.content.substr(tawsPrefix.length) // Remove the leading exclamation mark
@@ -498,6 +498,7 @@ function refresh() { // Now using pm2 to restart the bot.
   // Run pm2 start sheetBot.js inside directory with sheetBot in it to make it run.
   // Using manager.bat can also be useful.
   async function firstFunction() {
+    client.user.setActivity("Restarting...")
     return client.channels.cache.get(generalChannel).send("Refreshing... (This may take up to 2 minutes to complete.)")
   };
   async function secondFunction() {
