@@ -2,7 +2,7 @@
 A discord bot for Tetr.io that pulls up more advanced statistics and analytics than Tetra Channel provides.
 
 # Credits:
-While I'm the sole developer behind this bot, a project like this does take a village.
+While as of the initial branch, I'm the sole developer behind this bot, a project like this does take a village.
 
 <h3>pncl and iLumine</h3>
 - Largely responsible for the creation of the playstyle stats, with a bit of my guidance thrown in.
