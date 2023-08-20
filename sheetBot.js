@@ -401,7 +401,10 @@ async function help(name) {
     name[0] = String(name[0]).toLowerCase()
   } else {
     helpContent = "List of commands: `ts, vs, vst, vsr, sq, psq, lb, rlb, ac, cc, avg, med, o, z, refresh, rnk` \n Use `!help [command]` for more info on any specific command."
-      + "\n" + "Calculations are performed as follows: \n" + "APP: `APM/(PPS*60)` \n" + "DS/Second: `(VS/100)-(APM/60)` \n" + "DS/Piece: `((VS/100)-(APM/60))/PPS` \n" + "APP+DS/Piece: `(((VS/100)-(APM/60))/PPS) + APM/(PPS*60)` \n" + "Cheese Index: `((DS/Piece * 150) + (((VS/APM)-2)*50) + (0.6-APP)*125))` \n" + "Garbage Effi.: `(attack*downstack)/pieces^2` \n" + "Area: `apm + pps * 45 + vs * 0.444 + app * 185 + dssecond * 175 + dspiece * 450 + garbageEffi * 315` \n Weighted APP: `APP - 5 * tan((cheeseIndex/ -30) + 1)` \n Est. TR: `25000/(1+10^(((1500-(0.000013*(((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))^3) - 0.0196*(((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))^2) + (12.645*((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))) - 1005.4))*pi)/(sqrt(((3*ln(10)^2)*60^2)+(2500*((64*pi^2)+(147*ln(10)^2)))))))`"
+      + "\n" + "You can also type `!help calcs` for calculation info."
+  }
+  if (name[0] == "calc" || name[0] == "!calc" || name[0] == "calculations" || name[0] == "!calculations" || name[0] == "calcs" || name[0] == "!calcs") {
+    helpContent = "Calculations are performed as follows: \n" + "APP: `APM/(PPS*60)` \n" + "DS/Second: `(VS/100)-(APM/60)` \n" + "DS/Piece: `((VS/100)-(APM/60))/PPS` \n" + "APP+DS/Piece: `(((VS/100)-(APM/60))/PPS) + APM/(PPS*60)` \n" + "Cheese Index: `((DS/Piece * 150) + (((VS/APM)-2)*50) + (0.6-APP)*125))` \n" + "Garbage Effi.: `(attack*downstack)/pieces^2` \n" + "Area: `apm + pps * 45 + vs * 0.444 + app * 185 + dssecond * 175 + dspiece * 450 + garbageEffi * 315` \n Weighted APP: `APP - 5 * tan((cheeseIndex/ -30) + 1)` \n Est. TR: `25000/(1+10^(((1500-(0.000013*(((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))^3) - 0.0196*(((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))^2) + (12.645*((pps * (150 + ((vsapm - 1.66) * 35)) + app * 290 + dspiece * 700))) - 1005.4))*pi)/(sqrt(((3*ln(10)^2)*60^2)+(2500*((64*pi^2)+(147*ln(10)^2)))))))`"
   }
   if (name[0] == "ts" || name[0] == "!ts") {
     helpContent = "!ts - Displays stats of a user in a table list.\n"
@@ -925,7 +928,7 @@ function getAverage(name, median) {
       // Wasn't able to implement the above yet, though I plan on working on it sometime soon.
       { name: 'TR', value: (avgPlayer.tr.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.tr - avgPlayer.tr >= 0) ? "**+" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "**" : "*" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "*") + ")" : "")), inline: true },
     )
-    .addField("Want to know more?", "Use !help for calculation info `^v^`")
+    .addField("Want to know more?", "Use !help calcs for calculation info `^v^`")
     .setTimestamp()
   return client.channels.cache.get(generalChannelLocal).send({ embeds: [e] });
 }
@@ -2132,7 +2135,7 @@ async function allcomp(name) {
       { name: 'Closest Stride:', value: "[" + closestPlayers[19].name + "]" + "(https://ch.tetr.io/u/" + closestPlayers[19].name + "): (Rank #" + ((closestPlayers[19].position == 0) ? "[?]" : closestPlayers[19].position) + "): (" + player.stride.toFixed(4) + " vs. " + closestPlayers[19].stride.toFixed(4) + ")", inline: false },
       { name: 'Closest Inf. DS:', value: "[" + closestPlayers[20].name + "]" + "(https://ch.tetr.io/u/" + closestPlayers[20].name + "): (Rank #" + ((closestPlayers[20].position == 0) ? "[?]" : closestPlayers[20].position) + "): (" + player.infds.toFixed(4) + " vs. " + closestPlayers[20].infds.toFixed(4) + ")", inline: false },
     )
-    .addField("Want to know more?", "Use !help for calculation info `^v^`")
+    .addField("Want to know more?", "Use !help calcs for calculation info `^v^`")
     .setTimestamp()
     .setFooter('User ID: ' + player.id + '');
   client.channels.cache.get(generalChannelLocal).send({ embeds: [exampleEmbed] });
@@ -2410,7 +2413,7 @@ async function tetostat(name) {
       )
     }
     exampleEmbed
-      .addField("Want to know more?", "Use !help for calculation info `^v^`")
+      .addField("Want to know more?", "Use !help calcs for calculation info `^v^`")
       .setTimestamp()
       .setFooter('User ID: ' + statPlayer.id + '');
     client.channels.cache.get(generalChannelLocal).send({ embeds: [exampleEmbed] });
@@ -2474,7 +2477,7 @@ async function tetostat(name) {
           , inline: true
         },
       )
-      .addField("Want to know more?", "Use !help for calculation info `^v^`")
+      .addField("Want to know more?", "Use !help calcs for calculation info `^v^`")
       .setTimestamp()
       .setFooter('User ID: ' + statPlayer.id + '');
     client.channels.cache.get(generalChannelLocal).send({ embeds: [exampleEmbed] });
