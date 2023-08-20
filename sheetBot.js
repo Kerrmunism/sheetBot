@@ -8,7 +8,7 @@ const QuickChart = require('quickchart-js');
 const fs = require('fs'); // Allows node.js to use the file system.
 const { ClientRequest } = require('http');
 
-var generalChannel = "1141869798985302036" // Replace with known channel ID
+var generalChannel = "884917214195646477" // Replace with known channel ID
 
 var apmweight = 1 // All of the below are weights to do with the versus graph area and the area stat.
 var ppsweight = 45
