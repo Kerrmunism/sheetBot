@@ -10,6 +10,8 @@ const { ClientRequest } = require('http');
 
 var generalChannel = "884917214195646477" // Replace with known channel ID
 
+var prefixes = {};
+
 var apmweight = 1 // All of the below are weights to do with the versus graph area and the area stat.
 var ppsweight = 45
 var vsweight = 0.444
@@ -237,8 +239,16 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
       }
     }
   }
-  taws()
+  loadPrefixes();
 }
+
+async function loadPrefixes() {
+  const prefixData = fs.readFileSync("./prefix.json", "utf-8");
+  prefixes = JSON.parse(prefixData);
+
+  taws(); // The taws function is probably not needed anymore. but just in case i'll keep it here.
+}
+
 async function taws() {
   const read = readline.createInterface({
     input: fs.createReadStream(prefixFile),
@@ -301,29 +311,52 @@ function everythingElse() {
       return
     }
     generalChannel = text.channelId // Set generalChannel to whatever channel the message is currently in.
-    if (text.content.startsWith("!") && text.guild.id != "599005375907495936") { // ! is the prefix used for commands. You could change this if you wanted to.
-      processCommand(text)
+    const guildId = text.guild != undefined ? text.guild.id : ""; 
+    const guildPrefix = prefixes[guildId];
+    const prefix = guildPrefix == undefined ? '!' : guildPrefix;
+
+    // If the bot is pinged, give its prefix.
+    const botMention = `<@${client.user.id}>`;
+    if(text.content.startsWith(botMention)) {
+      prefixcommand([], prefix, text)
+      return;
     }
-    if (text.content.startsWith(tawsPrefix) && text.guild.id == "599005375907495936") { // Again, they wanted a different prefix for that server.
-      processCommand(text)
+
+    // Instead of having to modify the code to add a server's prefix,
+    // this will enable servers to define the prefix
+    // they want for their server with a command.
+    if (text.content.startsWith(prefix) 
+    // && text.guild.id != "599005375907495936"
+  ) { // ! is the prefix used for commands. You could change this if you wanted to.
+      processCommand(text, prefix)
     }
+
+
+
+    // if (text.content.startsWith(tawsPrefix) && text.guild.id == "599005375907495936") { // Again, they wanted a different prefix for that server.
+    //   processCommand(text)
+    // }
   })
-  function processCommand(text) {
+  function processCommand(text, prefix = '!') {
+    
+
+    
     client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
     let parsedText = ""
-    if (text.guild.id == "599005375907495936") {
-      parsedText = text.content.substr(tawsPrefix.length) // Remove the leading exclamation mark
-    } else {
-      parsedText = text.content.substr(1)
-    }
+    // if (text.guild.id == "599005375907495936") {
+    //   parsedText = text.content.substr(tawsPrefix.length) // Remove the leading exclamation mark
+    // } else {
+    //   parsedText = text.content.substr(1)
+    // }
+    parsedText = text.content.substr(prefix.length)
     let spacesText = parsedText.split(" ") // Split the message up in to pieces for each space
     let command = spacesText[0] // The first word directly after the exclamation is the command
     if (command.length != 0) {
       command = command.toLowerCase()
     }
     let name = spacesText.slice(1) // All other words are name/parameters/options for the command
-    if (name.length == 0 && command != "refresh" && command != "help") {
-      return client.channels.cache.get(text.channelId).send("You must enter at least one parameter for every command except help and refresh!")
+    if (name.length == 0 && command != "refresh" && command != "help" && command != "prefix") {
+      return client.channels.cache.get(text.channelId).send("You must enter at least one parameter for every command except help, refresh and prefix!")
     }
     for (let i = 0; i < name.length; i++) {
       if (isNaN(Number(name[i]))) { // If it's not a number
@@ -334,8 +367,13 @@ function everythingElse() {
     }
     console.log(name)
     console.log(command)
+
     // Different commands are called below. Self-explanatory.
-    if (command == "ts") { // DONE
+    if(command == "prefix") { // DONE
+      prefixcommand(parsedText.split(" ").slice(1), prefix, text)
+      // Note: For a prefix command you don't need to filter problematic characters
+    }
+    if (command == "ts") { // DONE?
       tetostat(name)
     }
     if (command == "help") { // Not Started
@@ -393,6 +431,33 @@ function everythingElse() {
     }
     */
   }
+}
+
+async function prefixcommand(name, prefix, text) {
+  let generalChannelLocal = generalChannel;
+  let channel = client.channels.cache.get(generalChannelLocal);
+  const guild = text.guild;
+  if(guild == undefined) {
+    channel.send(`This bot's prefix is ${prefix}.`);
+    return;
+  }
+  if(name[0] != undefined) {
+    name[0] = String(name[0]);
+  }
+  else {
+    channel.send(`This server's prefix is ${prefix}.\nYou can change it with ${prefix}prefix [prefix]`);
+    return;
+  }
+
+  if(!text.member.permissions.has('ADMINISTRATOR')) {
+    channel.send("You do not have the permission to change the prefix for that server. You need `ADMINISTRATOR` permissions.");
+    return;
+  }
+
+  prefixes[guild.id] = name[0];
+  fs.writeFileSync("./prefix.json", JSON.stringify(prefixes, undefined, 4), "utf-8");
+  console.log(prefixes)
+  channel.send(`This server's prefix has been changed to ${name[0]}`);
 }
 
 async function help(name) {
