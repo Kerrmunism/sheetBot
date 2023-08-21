@@ -31,7 +31,7 @@ var garbageeffisrw = 0
 
 var playerCount = 0 // The total ranked player count, not including averages or unranked.
 var unrankedCount = 0 // The total number of unranked players grabbed from the unranked players list.
-var tawsPrefix = ""
+var tawsPrefix = "s!"
 
 let latamCountries = ["AR", "BO", "BR", "CL", "CO", "CR", "CU", "DO", "EC", "SV", "GT", "HN", "MX", "NI", "PA", "PY", "PE", "PT", "PR", "UY", "VE"]
 let euCountries = ["AD", "AL", "AM", "AT", "AZ", "BE", "BG", "BY", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "EU", "FO", "FI", "FR", "GE", "GI", "GG", "GB", "GB-ENG", "GB-NIR", "GB-SCT", "GB-WLS", "GR", "HR", "HU", "IE", "IM", "IS", "IT", "JE", "LI", "LT", "LU", "LV", "MC", "ME", "MD", "MT", "NL", "NO", "NZ", "PL", "PT", "RO", "RU", "SE", "SI", "SM", "SR", "TR", "UA", "VA", "XK"]
