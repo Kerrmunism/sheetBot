@@ -401,7 +401,7 @@ async function help(name) {
   if (name[0] != undefined) {
     name[0] = String(name[0]).toLowerCase()
   } else {
-    helpContent = "List of commands: `ts, vs, vst, vsr, sq, psq, lb, rlb, ac, cc, avg, med, o, z, refresh, rnk` \n Use `!help [command]` for more info on any specific command."
+    helpContent = "List of commands: `ts, vs, vst, vsr, sq, psq, lb, rlb, ac, cc, avg, med, o, z, refresh, rnk` \nUse `!help [command]` for more info on any specific command."
       + "\n" + "You can also type `!help calcs` for calculation info."
   }
   if (name[0] == "calc" || name[0] == "!calc" || name[0] == "calculations" || name[0] == "!calculations" || name[0] == "calcs" || name[0] == "!calcs") {
@@ -432,7 +432,7 @@ async function help(name) {
   }
   if (name[0] == "psq" || name[0] == "!psq") {
     helpContent = "`!psq` - Same thing as sq, but instead of each end being ATTACK, SPEED, DEFENSE and CHEESE, you have OPENER, STRIDE, PLONK and INF DS.\n"
-      + "**Usage** - `!psq [name] [name2, optional] [name3, optional]`... (many can be added) or `!psq [apm] [pps] [vs]`."
+      + "**Usage** - `!psq [name] [name2, optional] [name3, optional]`... (many can be added) or `!psq [apm] [pps] [vs]`.\n"
       + "**Extra Parameters:** `-v`, `-s`. Both are to be added at the end of the command, though only one may be applied at a time.\n"
       + "`-v`: Will display a version of the graph without fill on the colors, aiding visibility with large numbers of players.\n"
       + "`-s`: Will display a scatter plot instead of the traditional radar graph."
