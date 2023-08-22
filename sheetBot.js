@@ -290,7 +290,9 @@ function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  client.channels.cache.get(generalChannelLocal).send("Ready!")
+  let guild = await client.guilds.fetch("884460216526200872");
+  let channel = await guild.channels.fetch("884917214195646477");
+  await channel.send("Ready!");
   console.log(g("name"))
 }
 everythingElse()
@@ -322,9 +324,9 @@ function everythingElse() {
       command = command.toLowerCase()
     }
     let name = spacesText.slice(1) // All other words are name/parameters/options for the command
-    if (name.length <= 0 && command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
+    if (name.length <= 0 && (command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
     || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
-    || command == "med") {
+    || command == "med")) {
       return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
     }
     for (let i = 0; i < name.length; i++) {
