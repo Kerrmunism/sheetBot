@@ -333,7 +333,7 @@ function everythingElse() {
       if (isNaN(Number(name[i]))) { // If it's not a number
         name[i] = name[i].toLowerCase()
         name[i] = name[i].replace(/[\u{0080}-\u{FFFF}]/gu, '') // Removes unicode characters
-        name[i] = name[i].replace(/[&\/\\#,+()~%'":*?{}]/g, '') // Removes some other problematic characters
+        name[i] = name[i].replace(/[&\/\\#,()~%'":*?{}]/g, '') // Removes some other problematic characters
       }
     }
     console.log(name)
