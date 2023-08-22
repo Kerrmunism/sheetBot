@@ -970,7 +970,7 @@ async function leaderboard(name, reverse) {
       page = (name[i].slice(1, name[i].length)) - 1 // Set the page to the numbers - 1.
     } else {
       console.log(name[i].slice(-1))
-      if (name[i].length == 2 && isNaN(name[i].slice(-1)) || name[i].length > 2 && name[i].slice(0, 2).toLowerCase() == "gb") {
+      if (name[i].length == 2 && isNaN(name[i].slice(-1)) && name[i].slice(-1) != "-" && name[i].slice(-1) != "+" || (name[i].length > 2 && name[i].slice(0, 2).toLowerCase() == "gb")) {
         countrySearch = String(name[i]).toUpperCase()
       } else {
         if (String(name[i]).toLowerCase() == "null") {
