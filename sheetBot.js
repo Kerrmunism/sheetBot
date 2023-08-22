@@ -322,8 +322,10 @@ function everythingElse() {
       command = command.toLowerCase()
     }
     let name = spacesText.slice(1) // All other words are name/parameters/options for the command
-    if (name.length == 0 && command != "refresh" && command != "help") {
-      return client.channels.cache.get(text.channelId).send("You must enter at least one parameter for every command except help and refresh!")
+    if (name.length <= 0 && command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
+    || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
+    || command == "med") {
+      return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
     }
     for (let i = 0; i < name.length; i++) {
       if (isNaN(Number(name[i]))) { // If it's not a number
