@@ -251,7 +251,7 @@ async function taws() {
   averagePlayers()
 }
 
-function averagePlayers() {
+async function averagePlayers() {
   let generalChannelLocal = generalChannel
   var rankCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // Count the number of players in each rank
   var ranks = g("rank")
