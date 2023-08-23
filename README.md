@@ -9,7 +9,7 @@ While as of the initial branch, I'm the sole developer behind this bot, a projec
 <h3>RKPLol</h3>
 - For showing me the win probability formula and helping with its implementation into the bot.
 <h3>Zepheniah and Dragonboy</h3>
-- Helping with the creation of Weighted APP.
+- Helping with the creation of Garbage Effi.
 <h3>Windcatcher</h3>
 - Inspiration for doing this sheet in the first place, as well as being the first to expose me to formulas like DS/Piece.
 <h3>Haikai</h3>
