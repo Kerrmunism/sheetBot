@@ -33,7 +33,7 @@ var garbageeffisrw = 0
 
 var playerCount = 0 // The total ranked player count, not including averages or unranked.
 var unrankedCount = 0 // The total number of unranked players grabbed from the unranked players list.
-var tawsPrefix = ""
+var tawsPrefix = "s!"
 
 let latamCountries = ["AR", "BO", "BR", "CL", "CO", "CR", "CU", "DO", "EC", "SV", "GT", "HN", "MX", "NI", "PA", "PY", "PE", "PT", "PR", "UY", "VE"]
 let euCountries = ["AD", "AL", "AM", "AT", "AZ", "BE", "BG", "BY", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "EU", "FO", "FI", "FR", "GE", "GI", "GG", "GB", "GB-ENG", "GB-NIR", "GB-SCT", "GB-WLS", "GR", "HR", "HU", "IE", "IM", "IS", "IT", "JE", "LI", "LT", "LU", "LV", "MC", "ME", "MD", "MT", "NL", "NO", "NZ", "PL", "PT", "RO", "RU", "SE", "SI", "SM", "SR", "TR", "UA", "VA", "XK"]
@@ -261,7 +261,7 @@ async function taws() {
   averagePlayers()
 }
 
-function averagePlayers() {
+async function averagePlayers() {
   let generalChannelLocal = generalChannel
   var rankCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // Count the number of players in each rank
   var ranks = g("rank")
@@ -300,7 +300,9 @@ function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  client.channels.cache.get(generalChannelLocal).send("Ready!")
+  let guild = await client.guilds.fetch("884460216526200872");
+  let channel = await guild.channels.fetch("884917214195646477");
+  await channel.send("Ready!");
   console.log(g("name"))
 }
 everythingElse()
@@ -355,14 +357,16 @@ function everythingElse() {
       command = command.toLowerCase()
     }
     let name = spacesText.slice(1) // All other words are name/parameters/options for the command
-    if (name.length == 0 && command != "refresh" && command != "help" && command != "prefix") {
-      return client.channels.cache.get(text.channelId).send("You must enter at least one parameter for every command except help, refresh and prefix!")
+    if (name.length <= 0 && (command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
+    || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
+    || command == "med")) {
+      return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
     }
     for (let i = 0; i < name.length; i++) {
       if (isNaN(Number(name[i]))) { // If it's not a number
         name[i] = name[i].toLowerCase()
         name[i] = name[i].replace(/[\u{0080}-\u{FFFF}]/gu, '') // Removes unicode characters
-        name[i] = name[i].replace(/[&\/\\#,+()~%'":*?{}]/g, '') // Removes some other problematic characters
+        name[i] = name[i].replace(/[&\/\\#,()~%'":*?{}]/g, '') // Removes some other problematic characters
       }
     }
     console.log(name)
@@ -1031,7 +1035,7 @@ async function leaderboard(name, reverse) {
       page = (name[i].slice(1, name[i].length)) - 1 // Set the page to the numbers - 1.
     } else {
       console.log(name[i].slice(-1))
-      if (name[i].length == 2 && isNaN(name[i].slice(-1)) || name[i].length > 2 && name[i].slice(0, 2).toLowerCase() == "gb") {
+      if (name[i].length == 2 && isNaN(name[i].slice(-1)) && name[i].slice(-1) != "-" && name[i].slice(-1) != "+" || (name[i].length > 2 && name[i].slice(0, 2).toLowerCase() == "gb")) {
         countrySearch = String(name[i]).toUpperCase()
       } else {
         if (String(name[i]).toLowerCase() == "null") {
