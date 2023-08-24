@@ -455,7 +455,6 @@ async function help(name) {
       + "**Usage** - `!lb [any stat name] [how many places to display (ex, 10 for top 10)] [rank or position to start search, optional], [rank or position to stop search, optional], [country using 2-letter area code, \"LATAM\", \"E.U\" or \"null\", optional]`\n"
       + "**Extra Parameters:** `p#` : To be added at the end or before the country parameter if one is included, either works. Acts as a page, changing the number after the p will give a different page. For example, `!lb apm 20` will display #1-#20, while `!lb apm 20 p2` will display #21-39"
       + "\n**Examples:** `!lb apm 10 jp`, `!lb esttr 25 u p2`, `!lb cheese 40 S+ 25000`, `!lb app 20 u 1000 us`"
-      + "\n(*This command supports the use of average players. To use, simply type `$avg[rank]` where a player would be entered.*)"
       + "\n(*This command uses unranked players. They will show when setting your first position as 0, including `z` in the rank search or if no filters for rank or position are set.*)"
   }
   if (name[0] == "rlb" || name[0] == "!rlb") {
