@@ -176,7 +176,9 @@ function w(stat) { // w for write This is simply a conveinient shorthand.
 function g(stat) { // g for grab or give.
   return pList.map(pList => pList[stat])
 }
+
 async function fetchUnranked() { // Fetch the unranked players based on unrankedPlayers.txt
+
   var ids = []
   var contents = []
   var nameList = []
@@ -200,27 +202,51 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
       skip = 1
     }
   }
+  // nameList.splice(0, 1);
+  const promises = []; 
   for (let i = 0; i < Number(ids.length); i++) { // Loop through the list and grab stats using the same method as before.
     if (i != 0) {
       try {
-        let res = await axios({
+
+        promises.push(axios({
           url: 'https://ch.tetr.io/api/users/' + String(ids[i]),
           method: 'get',
-        })
+        }))
+      }
+      catch (err) { // In case the data fails to load for whatever reason.
+        console.error(err);
+      }
+    }
+  }
+
+  const results = await Promise.allSettled(promises);
+  for(let y = 0; y < results.length; ++y) {
+      try {
+
+        const result = results[y];
+        if(result.status == "rejected") {
+          console.error(result.reason);
+          continue;
+        }
+        let res = result.value;
         value = (res.data);
+        let i = y + 1;
         // This basically does the same thing as the assign function, but for unranked players.
         if (value.success == false || value.data.user.league.rank != "z" || value.data.user.league.apm == null) { // If the user is no longer unranked
           // or is banned / deleted
           // if (i > -1) {
-          console.log(nameList[i] + " was removed!")
-          nameList.splice(i, 1)
-          ids.splice(i - 1, 1)
-          contents.splice((i * 2) - 1, 2)
-          fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
-          // }
-        }
-        console.log(nameList[i])
-        var tmp = new Player(value.data.user.username, // Make a new player by passing the following
+            console.log(nameList[i] + " (" + i +   ", with id:" + ids[i-1]+" ) was removed!\nTheir rank is: " + value.data.user.league.rank + ", and their apm is " +  value.data.user.league.apm)
+            nameList.splice(i, 1)
+            ids.splice(i - 1, 1)
+            contents.splice((i * 2) - 1, 2)
+            results.splice(i-1, 1);
+            fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
+            y -= 1;
+            continue;
+            // }
+          }
+          console.log(nameList[i])
+          var tmp = new Player(value.data.user.username, // Make a new player by passing the following
           value.data.user.league.apm, // APM 
           value.data.user.league.pps, // PPS
           value.data.user.league.vs, // VS
@@ -228,16 +254,15 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
           value.data.user.league.glicko, // Glicko
           value.data.user.league.rd, // RD
           value.data.user // The whole of the data for the player.
-        )
-        tmp.position = 0
-        pList.push(tmp)
-        // Since we have the whole data being sent, no need to add the things that aren't automatically included.
-        unrankedCount += 1; // Then add one to the unranked player count
-      }
-      catch (err) { // In case the data fails to load for whatever reason.
-        console.error(err);
-      }
-    }
+          )
+          tmp.position = 0
+          pList.push(tmp)
+          // Since we have the whole data being sent, no need to add the things that aren't automatically included.
+          unrankedCount += 1; // Then add one to the unranked player count
+        }
+        catch(e) { // In case the data fails to load for whatever reason.
+          console.error(e); 
+        } 
   }
   loadPrefixes();
 }
@@ -300,8 +325,8 @@ async function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  let guild = await client.guilds.fetch("884460216526200872");
-  let channel = await guild.channels.fetch("884917214195646477");
+  let guild = await client.guilds.fetch("1040419206728007790");
+  let channel = await guild.channels.fetch("1040648719869149302");
   await channel.send("Ready!");
   console.log(g("name"))
 }
