@@ -7,8 +7,9 @@ const { table, getBorderCharacters } = require('table')
 const QuickChart = require('quickchart-js');
 const fs = require('fs'); // Allows node.js to use the file system.
 const { ClientRequest } = require('http');
+const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"))
 
-var generalChannel = "884917214195646477" // Replace with known channel ID
+var generalChannel = config.generalChannelID
 
 var apmweight = 1 // All of the below are weights to do with the versus graph area and the area stat.
 var ppsweight = 45
@@ -290,8 +291,8 @@ async function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  let guild = await client.guilds.fetch("884460216526200872");
-  let channel = await guild.channels.fetch("884917214195646477");
+  let guild = await client.guilds.fetch(config.yourGuildID);
+  let channel = await guild.channels.fetch(config.generalChannelID);
   await channel.send("Ready!");
   console.log(g("name"))
 }
@@ -303,7 +304,7 @@ function everythingElse() {
       return
     }
     generalChannel = text.channelId // Set generalChannel to whatever channel the message is currently in.
-    if (text.content.startsWith("!") && text.guild.id != "599005375907495936") { // ! is the prefix used for commands. You could change this if you wanted to.
+    if (text.content.startsWith(config.defaultPrefix) && text.guild.id != "599005375907495936") { // ! is the prefix used for commands. You could change this if you wanted to.
       processCommand(text)
     }
     if (text.content.startsWith(tawsPrefix) && text.guild.id == "599005375907495936") { // Again, they wanted a different prefix for that server.
@@ -2372,8 +2373,7 @@ async function tetostat(name) {
 }
 
 try {
-  var token = fs.readFileSync('token.txt', 'utf8'); // Load the token from a text file.
-  client.login(token); // Login with the token.
+  client.login(config.token); // Login with the token.
 } catch (e) {
   console.log('Error:', e.stack);
 }
