@@ -382,11 +382,6 @@ function everythingElse() {
       command = command.toLowerCase()
     }
     let name = spacesText.slice(1) // All other words are name/parameters/options for the command
-    if (name.length <= 0 && (command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
-    || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
-    || command == "med")) {
-      return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
-    }
     for (let i = 0; i < name.length; i++) {
       if (isNaN(Number(name[i]))) { // If it's not a number
         name[i] = name[i].toLowerCase()
@@ -397,6 +392,11 @@ function everythingElse() {
     console.log(name)
     console.log(command)
 
+    if (name.length <= 0 && (command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
+      || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
+      || command == "med")) {
+      return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
+    }
     // Different commands are called below. Self-explanatory.
     if(command == "prefix") { // DONE
       prefixcommand(parsedText.split(" ").slice(1), prefix, text)
@@ -421,10 +421,10 @@ function everythingElse() {
       operate(name)
     }
     if (command == "psq") { // Done
-      playstyle(name)
+      triangle(name, true)
     }
     if (command == "sq") { // Done, perhaps change blue color to be more visible then rest.
-      triangle(name) // Also strange issue with embeds not working when putting in stats?
+      triangle(name, false) // Also strange issue with embeds not working when putting in stats?
     }
     if (command == "ac") { // DONE
       allcomp(name)
@@ -1602,7 +1602,7 @@ function operate(name) {
   return client.channels.cache.get(generalChannelLocal).send("There are " + tempPList.length + " players with " + crit[0] + op[0] + val[0] + " and any other specifications: ```" + "\n" + display + "```")
 }
 
-async function triangle(name) {
+async function triangle(name, playstyle) {
   var chartData;
   var charttype = "radar"
   let generalChannelLocal = generalChannel
@@ -1616,19 +1616,22 @@ async function triangle(name) {
     name.pop()
     client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
   }
+  if (name[name.length - 1] == "-s" && playstyle == false) {
+    return client.channels.cache.get(generalChannelLocal).send("The -s parameter is only supported for `!psq`, not `!sq`.");
+  }
   async function updateChart() {
     if (charttype == "radar") {
       chartData = {
         "chart": {
           type: 'radar',
           data: {
-            labels: ['ATTACK', 'SPEED', 'DEFENSE', 'CHEESE'],
+            labels: ((playstyle == false) ? ['ATTACK', 'SPEED', 'DEFENSE', 'CHEESE'] : ['OPENER', 'STRIDE', 'INF DS', 'PLONK']),
             datasets: players.map((dummy, j) => (
               {
                 backgroundColor: bgColors[j],
                 borderColor: borderColors[j],
                 label: players[j].name,
-                data: [(Number(players[j].apm) / 60) * 0.4, Number(players[j].pps) / 3.75, Number(players[j].dss) * 1.15, players[j].ci / 110,]
+                data: ((playstyle == false) ? [(Number(players[j].apm) / 60) * 0.4, Number(players[j].pps) / 3.75, Number(players[j].dss) * 1.15, players[j].ci / 110,] : [players[j].opener, players[j].stride, players[j].infds, players[j].plonk])
               }
             ))
           },
@@ -1654,8 +1657,8 @@ async function triangle(name) {
               },
               ticks: {
                 min: 0,
-                max: 1.2,
-                stepSize: '0.2',
+                max: ((playstyle == false) ? 1.2 : 1.5),
+                stepSize: ((playstyle == false) ? 0.2 : 0.25),
                 fontColor: 'blue',
                 // rgba(204, 255, 249, 1)
                 display: false
@@ -1672,135 +1675,6 @@ async function triangle(name) {
       }
       return
     }
-  }
-  if (name[name.length - 1] == "-quad" || name[name.length - 1] == "-quadrant" || name[name.length - 1] == "-4square" || name[name.length - 1] == "-4sq") {
-    charttype = "quadrant"
-  }
-  if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
-    players.push(new Player("EXAMPLE", name[0], name[1], name[2], 0, 0, 60, null))
-    updateChart()
-    var url = await axios.post('https://quickchart.io/chart/create', chartData)
-    client.channels.cache.get(generalChannelLocal).send(url.data.url)
-    return
-  }
-  for (let i = 0; i < name.length; i++) { // Check every name.
-    console.log(name[i])
-    rankSearch = ""
-    if (name[i].length > 4 && name[i].length <= 6) {
-      if (String(name[i].slice(0, 4)).toLowerCase() == "$avg") {
-        if (rankArray.indexOf(String(name[i].slice(-2).toLowerCase())) == -1) {
-          rankSearch = String(name[i].slice(-1).toLowerCase())
-        } else {
-          rankSearch = String(name[i].slice(-2).toLowerCase())
-        }
-        temp = avgPlayers[rankArray.indexOf(rankSearch)] // Makes a deep copy
-        // of our player in question
-        players.push(temp);
-      }
-    }
-    if (rankSearch == "") {
-      if (String(name[i]).length > 2) {
-        await axios.get('https://ch.tetr.io/api/users/' + String(name[i]).toLowerCase()) // Fetch with axios
-          .then(function (response) { // Then do the following...
-            output = (response.data); // Assign output to the raw data.
-            if (output.data.user.league.gamesplayed == 0) {
-              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Player has never played a Tetra League game.")
-              return
-            }
-            if (output.success == false || output.data.user.role == "anon" || output == undefined) { // If the player is an anon, the string couldn't be grabbed or leagueCheck is undefined for whatever reason.
-              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. The user appears to be an anonymous account.")
-              return
-            }
-            temp = new Player(String(name[i]).toLowerCase(), output.data.user.league.apm,
-              output.data.user.league.pps,
-              output.data.user.league.vs,
-              output.data.user.league.rating,
-              output.data.user.league.glicko,
-              output.data.user.league.rd,
-              output.data.user)
-            players.push(temp);
-          })
-      } else {
-        client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Their name is too short to be a real account.")
-        return
-      }
-    }
-  }
-  await updateChart()
-  var url = axios.post('https://quickchart.io/chart/create', chartData).then(function (response) {
-    client.channels.cache.get(generalChannelLocal).send(response.data.url)
-  })
-}
-
-async function playstyle(name) {
-  var chartData;
-  var charttype = "radar"
-  let generalChannelLocal = generalChannel
-  var players = []
-  let rankSearch = "" // Just for if we search for average players.
-  var bgColors = ['rgba(204, 253, 232, 0.65)', 'rgba(48, 186, 255, 0.65)', 'rgba(240, 86, 127, 0.65)', 'rgba(8, 209, 109, 0.65)', 'rgba(237, 156, 17, 0.65)'] // Will hold our fill colors
-  var borderColors = ['rgba(75, 118, 191, 1)', 'rgba(204, 33, 201, 1)', 'rgba(250, 5, 70, 1), rgba(28, 232, 130, 1)', 'rgba(250, 177, 42, 1)'] // Will hold the color of the outline
-  if (name[name.length - 1] == "-v") {
-    bgColors = ['rgba(204, 253, 232, 0)', 'rgba(48, 186, 255, 0)', 'rgba(240, 86, 127, 0)', 'rgba(8, 209, 109, 0)', 'rgba(237, 156, 17, 0)']
-    borderColors = ['rgba(75, 118, 191, 0.5)', 'rgba(204, 33, 201, 0.5)', 'rgba(250, 5, 70, 0.5)', 'rgba(28, 232, 130, 0.5)', 'rgba(250, 177, 42, 0.5)']
-    name.pop()
-    client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
-  }
-  async function updateChart() {
-    if (charttype == "radar") {
-      chartData = {
-        "chart": {
-          type: 'radar',
-          data: {
-            labels: ['OPENER', 'STRIDE', 'INF DS', 'PLONK'],
-            datasets: players.map((dummy, j) => (
-              {
-                backgroundColor: bgColors[j],
-                borderColor: borderColors[j],
-                label: players[j].name,
-                data: [players.map(a => a.opener)[j], players.map(a => a.stride)[j], players.map(a => a.infds)[j], players.map(a => a.plonk)[j]]
-              }
-            ))
-          },
-          options: {
-            legend: {
-              labels: {
-                "fontSize": 14,
-                fontStyle: 'bold',
-                "fontColor": 'rgba(115, 158, 231, 1)',
-              },
-            },
-            "scale": {
-              "pointLabels": {
-                "fontSize": 13,
-                "fontColor": 'rgba(95, 138, 211, 1)',
-                fontStyle: 'bold'
-              },
-              rAxis: {
-                color: "blue",
-                ticks: {
-                  display: false
-                }
-              },
-              ticks: {
-                min: -0,
-                max: 1.5,
-                stepSize: '0.25',
-                fontColor: 'blue',
-                // rgba(204, 255, 249, 1)
-                display: false
-              },
-              gridLines: {
-                color: 'rgb(128,128,128)'
-              },
-              angleLines: {
-                color: 'rgb(128,128,128)'
-              }
-            }
-          }
-        }
-      }
-    }
     if (charttype == "scatter") {
       chartData = {
         "chart": {
@@ -1813,8 +1687,8 @@ async function playstyle(name) {
                 borderColor: borderColors[j],
                 data: [
                   {
-                    x: players.map(a => a.stride)[j] - players.map(a => a.plonk)[j],
-                    y: players.map(a => a.opener)[j] - players.map(a => a.infds)[j],
+                    x: players[j].stride - players[j].plonk,
+                    y: players[j].opener - players[j].infds,
                   }
                 ],
               }
@@ -1822,9 +1696,11 @@ async function playstyle(name) {
           },
           options: {
             legend: {
-              fontColor: 'rgba(95, 138, 211, 1)',
-              fontSize: 13,
-              fontStyle: "bold",
+              labels: {
+                "fontSize": 14,
+                fontStyle: 'bold',
+                "fontColor": 'rgba(115, 158, 231, 1)',
+              },
             },
             scales: {
               xAxes: [
@@ -1873,11 +1749,11 @@ async function playstyle(name) {
     return
   }
   for (let i = 0; i < name.length; i++) {
-    if (name[i].toLowerCase().includes("-quad") || name[i].toLowerCase().includes("-quadrant") || name[i].toLowerCase().includes("-scatter") || name[i].toLowerCase().includes("-s")) {
+    if (name[i].toLowerCase() == "-quad" || name[i].toLowerCase() == "-quadrant" || name[i].toLowerCase() == "-scatter" || name[i].toLowerCase() == "-s") {
       charttype = "scatter"
+      name.splice(i, 1)
     }
   }
-
   if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
     players.push(new Player("EXAMPLE", name[0], name[1], name[2], 0, 0, 60, null))
     updateChart()
@@ -1886,8 +1762,8 @@ async function playstyle(name) {
     return
   }
   for (let i = 0; i < name.length; i++) { // Check every name.
-    rankSearch == ""
     console.log(name[i])
+    rankSearch = ""
     if (name[i].length > 4 && name[i].length <= 6) {
       if (String(name[i].slice(0, 4)).toLowerCase() == "$avg") {
         if (rankArray.indexOf(String(name[i].slice(-2).toLowerCase())) == -1) {
@@ -1905,12 +1781,12 @@ async function playstyle(name) {
         await axios.get('https://ch.tetr.io/api/users/' + String(name[i]).toLowerCase()) // Fetch with axios
           .then(function (response) { // Then do the following...
             output = (response.data); // Assign output to the raw data.
-            if (output.data.user.league.gamesplayed == 0) {
-              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Player has never played a Tetra League game.")
-              return
-            }
             if (output.success == false || output.data.user.role == "anon" || output == undefined) { // If the player is an anon, the string couldn't be grabbed or leagueCheck is undefined for whatever reason.
               client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. The user appears to be an anonymous account.")
+              return
+            }
+            if (output.data.user.league.gamesplayed == 0) {
+              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Player has never played a Tetra League game.")
               return
             }
             temp = new Player(String(name[i]).toLowerCase(), output.data.user.league.apm,
@@ -1923,12 +1799,13 @@ async function playstyle(name) {
             players.push(temp);
           })
       } else {
-        if (!name[i].includes("-")) {
-          client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Their name is too short to be a real account.")
-          return
-        }
+        client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Their name is too short to be a real account.")
+        return
       }
     }
+  }
+  if (players.length == 0) { // Because the axios return doesn't really "return"
+    return
   }
   await updateChart()
   if (charttype == "scatter") {
@@ -1937,7 +1814,6 @@ async function playstyle(name) {
   var url = axios.post('https://quickchart.io/chart/create', chartData).then(function (response) {
     client.channels.cache.get(generalChannelLocal).send(response.data.url)
   })
-  console.log(players)
 }
 
 async function copycat(name) {
@@ -2314,61 +2190,65 @@ async function versus(name, relative, tableValue) {
     if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
       maximum = maxThisPlayer // Set saved max to this player's max
     }
-    updateChart()
-    var url = await axios.post('https://quickchart.io/chart/create', chartData)
-    client.channels.cache.get(generalChannelLocal).send(url.data.url)
-    return
+    if (tableValue == false) {
+      updateChart()
+      var url = await axios.post('https://quickchart.io/chart/create', chartData)
+      client.channels.cache.get(generalChannelLocal).send(url.data.url)
+      return
+    }
   }
-  for (let i = 0; i < name.length; i++) { // Check every name.
-    rankSearch == ""
-    console.log(name[i])
-    if (name[i].length > 4 && name[i].length <= 6) {
-      if (String(name[i].slice(0, 4)).toLowerCase() == "$avg") {
-        if (rankArray.indexOf(String(name[i].slice(-2).toLowerCase())) == -1) {
-          rankSearch = String(name[i].slice(-1).toLowerCase())
+  if (vsPlayers.length == 0) {
+    for (let i = 0; i < name.length; i++) { // Check every name.
+      rankSearch == ""
+      console.log(name[i])
+      if (name[i].length > 4 && name[i].length <= 6) {
+        if (String(name[i].slice(0, 4)).toLowerCase() == "$avg") {
+          if (rankArray.indexOf(String(name[i].slice(-2).toLowerCase())) == -1) {
+            rankSearch = String(name[i].slice(-1).toLowerCase())
+          } else {
+            rankSearch = String(name[i].slice(-2).toLowerCase())
+          }
+          temp = avgPlayers[rankArray.indexOf(rankSearch)] // Makes a deep copy
+          if (rankArray.indexOf(rankSearch) == -1) {
+            return client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid rank!")
+          }
+          // of our player in question
+          vsPlayers.push(temp);
+        }
+      }
+      if (rankSearch == "") {
+        if (String(name[i]).length > 2) {
+          await axios.get('https://ch.tetr.io/api/users/' + String(name[i]).toLowerCase()) // Fetch with axios
+            .then(function (response) { // Then do the following...
+              output = (response.data); // Assign output to the raw data.
+              if (output.success == false || output.data.user.role == "anon" || output == undefined) { // If the player is an anon, the string couldn't be grabbed or leagueCheck is undefined for whatever reason.
+                client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. The user appears to be an anonymous account.")
+                return
+              }
+              if (output.data.user.league.gamesplayed == 0) {
+                client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Player has never played a Tetra League game.")
+                return
+              }
+              temp = new Player(String(name[i]).toLowerCase(), output.data.user.league.apm,
+                output.data.user.league.pps,
+                output.data.user.league.vs,
+                output.data.user.league.rating,
+                output.data.user.league.glicko,
+                output.data.user.league.rd,
+                output.data.user)
+              vsPlayers.push(temp);
+            })
         } else {
-          rankSearch = String(name[i].slice(-2).toLowerCase())
-        }
-        temp = avgPlayers[rankArray.indexOf(rankSearch)] // Makes a deep copy
-        if (rankArray.indexOf(rankSearch) == -1) {
-          return client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid rank!")
-        }
-        // of our player in question
-        vsPlayers.push(temp);
-      }
-    }
-    if (rankSearch == "") {
-      if (String(name[i]).length > 2) {
-        await axios.get('https://ch.tetr.io/api/users/' + String(name[i]).toLowerCase()) // Fetch with axios
-          .then(function (response) { // Then do the following...
-            output = (response.data); // Assign output to the raw data.
-            if (output.data.user.league.gamesplayed == 0) {
-              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Player has never played a Tetra League game.")
-              return
-            }
-            if (output.success == false || output.data.user.role == "anon" || output == undefined) { // If the player is an anon, the string couldn't be grabbed or leagueCheck is undefined for whatever reason.
-              client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. The user appears to be an anonymous account.")
-              return
-            }
-            temp = new Player(String(name[i]).toLowerCase(), output.data.user.league.apm,
-              output.data.user.league.pps,
-              output.data.user.league.vs,
-              output.data.user.league.rating,
-              output.data.user.league.glicko,
-              output.data.user.league.rd,
-              output.data.user)
-            vsPlayers.push(temp);
-          })
-      } else {
-        if (!name[i].includes("-")) {
-          client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Their name is too short to be a real account.")
-          return
+          if (!name[i].includes("-")) {
+            client.channels.cache.get(generalChannelLocal).send(name[i] + " is an invalid user. Their name is too short to be a real account.")
+            return
+          }
         }
       }
-    }
-    let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
-    if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
-      maximum = maxThisPlayer // Set saved max to this player's max
+      let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
+      if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
+        maximum = maxThisPlayer // Set saved max to this player's max
+      }
     }
   }
   if (vsPlayers.length > 1) {
