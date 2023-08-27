@@ -11,6 +11,8 @@ const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"))
 
 var generalChannel = config.generalChannelID
 
+var prefixes = {};
+
 var apmweight = 1 // All of the below are weights to do with the versus graph area and the area stat.
 var ppsweight = 45
 var vsweight = 0.444
@@ -175,7 +177,9 @@ function w(stat) { // w for write This is simply a conveinient shorthand.
 function g(stat) { // g for grab or give.
   return pList.map(pList => pList[stat])
 }
+
 async function fetchUnranked() { // Fetch the unranked players based on unrankedPlayers.txt
+
   var ids = []
   var contents = []
   var nameList = []
@@ -199,27 +203,51 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
       skip = 1
     }
   }
+  // nameList.splice(0, 1);
+  const promises = []; 
   for (let i = 0; i < Number(ids.length); i++) { // Loop through the list and grab stats using the same method as before.
     if (i != 0) {
       try {
-        let res = await axios({
+
+        promises.push(axios({
           url: 'https://ch.tetr.io/api/users/' + String(ids[i]),
           method: 'get',
-        })
+        }))
+      }
+      catch (err) { // In case the data fails to load for whatever reason.
+        console.error(err);
+      }
+    }
+  }
+
+  const results = await Promise.allSettled(promises);
+  for(let y = 0; y < results.length; ++y) {
+      try {
+
+        const result = results[y];
+        if(result.status == "rejected") {
+          console.error(result.reason);
+          continue;
+        }
+        let res = result.value;
         value = (res.data);
+        let i = y + 1;
         // This basically does the same thing as the assign function, but for unranked players.
         if (value.success == false || value.data.user.league.rank != "z" || value.data.user.league.apm == null) { // If the user is no longer unranked
           // or is banned / deleted
           // if (i > -1) {
-          console.log(nameList[i] + " was removed!")
-          nameList.splice(i, 1)
-          ids.splice(i - 1, 1)
-          contents.splice((i * 2) - 1, 2)
-          fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
-          // }
-        }
-        console.log(nameList[i])
-        var tmp = new Player(value.data.user.username, // Make a new player by passing the following
+            console.log(nameList[i] + " (" + i +   ", with id:" + ids[i-1]+" ) was removed!\nTheir rank is: " + value.data.user.league.rank + ", and their apm is " +  value.data.user.league.apm)
+            nameList.splice(i, 1)
+            ids.splice(i - 1, 1)
+            contents.splice((i * 2) - 1, 2)
+            results.splice(i-1, 1);
+            fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
+            y -= 1;
+            continue;
+            // }
+          }
+          console.log(nameList[i])
+          var tmp = new Player(value.data.user.username, // Make a new player by passing the following
           value.data.user.league.apm, // APM 
           value.data.user.league.pps, // PPS
           value.data.user.league.vs, // VS
@@ -227,19 +255,26 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
           value.data.user.league.glicko, // Glicko
           value.data.user.league.rd, // RD
           value.data.user // The whole of the data for the player.
-        )
-        tmp.position = 0
-        pList.push(tmp)
-        // Since we have the whole data being sent, no need to add the things that aren't automatically included.
-        unrankedCount += 1; // Then add one to the unranked player count
-      }
-      catch (err) { // In case the data fails to load for whatever reason.
-        console.error(err);
-      }
-    }
+          )
+          tmp.position = 0
+          pList.push(tmp)
+          // Since we have the whole data being sent, no need to add the things that aren't automatically included.
+          unrankedCount += 1; // Then add one to the unranked player count
+        }
+        catch(e) { // In case the data fails to load for whatever reason.
+          console.error(e); 
+        } 
   }
-  taws()
+  loadPrefixes();
 }
+
+async function loadPrefixes() {
+  const prefixData = fs.readFileSync("./prefix.json", "utf-8");
+  prefixes = JSON.parse(prefixData);
+
+  taws(); // The taws function is probably not needed anymore. but just in case i'll keep it here.
+}
+
 async function taws() {
   const read = readline.createInterface({
     input: fs.createReadStream(prefixFile),
@@ -304,21 +339,44 @@ function everythingElse() {
       return
     }
     generalChannel = text.channelId // Set generalChannel to whatever channel the message is currently in.
-    if (text.content.startsWith(config.defaultPrefix) && text.guild.id != "599005375907495936") { // ! is the prefix used for commands. You could change this if you wanted to.
-      processCommand(text)
+    const guildId = text.guild != undefined ? text.guild.id : ""; 
+    const guildPrefix = prefixes[guildId];
+    const prefix = guildPrefix == undefined ? config.defaultPrefix : guildPrefix;
+
+    // If the bot is pinged, give its prefix.
+    const botMention = `<@${client.user.id}>`;
+    if(text.content.startsWith(botMention)) {
+      prefixcommand([], prefix, text)
+      return;
     }
-    if (text.content.startsWith(tawsPrefix) && text.guild.id == "599005375907495936") { // Again, they wanted a different prefix for that server.
-      processCommand(text)
+
+    // Instead of having to modify the code to add a server's prefix,
+    // this will enable servers to define the prefix
+    // they want for their server with a command.
+    if (text.content.startsWith(prefix) 
+    // && text.guild.id != "599005375907495936"
+  ) { // ! is the prefix used for commands. You could change this if you wanted to.
+      processCommand(text, prefix)
     }
+
+
+
+    // if (text.content.startsWith(tawsPrefix) && text.guild.id == "599005375907495936") { // Again, they wanted a different prefix for that server.
+    //   processCommand(text)
+    // }
   })
-  function processCommand(text) {
+  function processCommand(text, prefix = '!') {
+    
+
+    
     client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
     let parsedText = ""
-    if (text.guild.id == "599005375907495936") {
-      parsedText = text.content.substr(tawsPrefix.length) // Remove the leading exclamation mark
-    } else {
-      parsedText = text.content.substr(1)
-    }
+    // if (text.guild.id == "599005375907495936") {
+    //   parsedText = text.content.substr(tawsPrefix.length) // Remove the leading exclamation mark
+    // } else {
+    //   parsedText = text.content.substr(1)
+    // }
+    parsedText = text.content.substr(prefix.length)
     let spacesText = parsedText.split(" ") // Split the message up in to pieces for each space
     let command = spacesText[0] // The first word directly after the exclamation is the command
     if (command.length != 0) {
@@ -334,13 +392,18 @@ function everythingElse() {
     }
     console.log(name)
     console.log(command)
+
     if (name.length <= 0 && (command == "ts" || command == "vs" || command == "vsr" || command == "o" || command == "vst" || command == "psq"
       || command == "sq" || command == "ac" || command == "lb" || command == "rlb" || command == "z" || command == "rnk" || command == "avg"
       || command == "med")) {
       return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
     }
     // Different commands are called below. Self-explanatory.
-    if (command == "ts") { // DONE
+    if(command == "prefix") { // DONE
+      prefixcommand(parsedText.split(" ").slice(1), prefix, text)
+      // Note: For a prefix command you don't need to filter problematic characters
+    }
+    if (command == "ts") { // DONE?
       tetostat(name)
     }
     if (command == "help") { // Not Started
@@ -398,6 +461,33 @@ function everythingElse() {
     }
     */
   }
+}
+
+async function prefixcommand(name, prefix, text) {
+  let generalChannelLocal = generalChannel;
+  let channel = client.channels.cache.get(generalChannelLocal);
+  const guild = text.guild;
+  if(guild == undefined) {
+    channel.send(`This bot's prefix is ${prefix}.`);
+    return;
+  }
+  if(name[0] != undefined) {
+    name[0] = String(name[0]);
+  }
+  else {
+    channel.send(`This server's prefix is ${prefix}.\nYou can change it with ${prefix}prefix [prefix]`);
+    return;
+  }
+
+  if(!text.member.permissions.has('ADMINISTRATOR')) {
+    channel.send("You do not have the permission to change the prefix for that server. You need `ADMINISTRATOR` permissions.");
+    return;
+  }
+
+  prefixes[guild.id] = name[0];
+  fs.writeFileSync("./prefix.json", JSON.stringify(prefixes, undefined, 4), "utf-8");
+  console.log(prefixes)
+  channel.send(`This server's prefix has been changed to ${name[0]}`);
 }
 
 async function help(name) {
@@ -571,7 +661,7 @@ async function rankStat(name) {
       return
     }
   }
-  if ((name[name.length - 1].length == 2 || String(name[name.length - 1]).slice(0, 2).toLowerCase() == "gb") && isNaN(name[name.length - 1])) {
+  if ((name[name.length - 1].length == 2 || String(name[name.length - 1]).slice(0, 2).toLowerCase() == "gb") && isNaN(name[name.length - 1]) && name[name.length - 1].slice(-1) != "-" && name[name.length - 1].slice(-1) != "+") {
     countrySearch = String(name[name.length - 1]).toUpperCase()
   } else {
     if (name[name.length - 1] == null || String(name[name.length - 1]).toLowerCase() == "null") {
