@@ -1,9 +1,10 @@
 # sheetBot
 A discord bot for Tetr.io that pulls up more advanced statistics and analytics than Tetra Channel provides.
 
-# Credits:
-While as of the initial branch, I'm the sole developer behind this bot, a project like this does take a village.
+## Branch Contributors
+<b>Takathedinosaur, dan63047</b>
 
+## Other Notable Contributions
 <h3>pncl and iLumine</h3>
 - Largely responsible for the creation of the playstyle stats, with a bit of my guidance thrown in.
 <h3>RKPLol</h3>
@@ -15,7 +16,7 @@ While as of the initial branch, I'm the sole developer behind this bot, a projec
 <h3>Haikai</h3>
 - Giving graphic design advice for some of the charts.
 <h3>Takathedinosaur</h3>
-- Making the excellent TakaTheBot and keeping me motivated to keep going. Also some minor bug reporting.
+- Making the excellent TakaTheBot and keeping me motivated to keep going. Also helped write one of the branches for this GitHub!
 <h3>Firenight Souls, LHayabuza, Sedaji, dan63047, cmdingo</h3>
 - Beta testing for this build of the bot.
 <h3>Tronsi</h3>
