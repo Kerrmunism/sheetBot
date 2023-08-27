@@ -570,7 +570,7 @@ async function rankStat(name) {
       return
     }
   }
-  if ((name[name.length - 1].length == 2 || String(name[name.length - 1]).slice(0, 2).toLowerCase() == "gb") && isNaN(name[name.length - 1])) {
+  if ((name[name.length - 1].length == 2 || String(name[name.length - 1]).slice(0, 2).toLowerCase() == "gb") && isNaN(name[name.length - 1]) && name[name.length - 1].slice(-1) != "-" && name[name.length - 1].slice(-1) != "+") {
     countrySearch = String(name[name.length - 1]).toUpperCase()
   } else {
     if (name[name.length - 1] == null || String(name[name.length - 1]).toLowerCase() == "null") {
