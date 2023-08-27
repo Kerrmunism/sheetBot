@@ -325,8 +325,8 @@ async function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  let guild = await client.guilds.fetch("1040419206728007790");
-  let channel = await guild.channels.fetch("1040648719869149302");
+  let guild = await client.guilds.fetch("884460216526200872");
+  let channel = await guild.channels.fetch("884917214195646477");
   await channel.send("Ready!");
   console.log(g("name"))
 }
