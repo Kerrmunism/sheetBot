@@ -475,7 +475,7 @@ async function prefixcommand(name, prefix, text) {
     name[0] = String(name[0]);
   }
   else {
-    channel.send(`This server's prefix is ${prefix}.\nYou can change it with ${prefix}prefix [prefix]`);
+    channel.send(`This server's prefix is \`${prefix}\`\nYou can change it with \`${prefix}prefix [prefix]\``);
     return;
   }
 
