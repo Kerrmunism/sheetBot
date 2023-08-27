@@ -7,8 +7,9 @@ const { table, getBorderCharacters } = require('table')
 const QuickChart = require('quickchart-js');
 const fs = require('fs'); // Allows node.js to use the file system.
 const { ClientRequest } = require('http');
+const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"))
 
-var generalChannel = "884917214195646477" // Replace with known channel ID
+var generalChannel = config.generalChannelID
 
 var prefixes = {};
 
@@ -325,8 +326,8 @@ async function averagePlayers() {
   }
   console.log(rankCount)
   console.log(avgPlayers)
-  let guild = await client.guilds.fetch("884460216526200872");
-  let channel = await guild.channels.fetch("884917214195646477");
+  let guild = await client.guilds.fetch(config.yourGuildID);
+  let channel = await guild.channels.fetch(config.generalChannelID);
   await channel.send("Ready!");
   console.log(g("name"))
 }
@@ -340,7 +341,7 @@ function everythingElse() {
     generalChannel = text.channelId // Set generalChannel to whatever channel the message is currently in.
     const guildId = text.guild != undefined ? text.guild.id : ""; 
     const guildPrefix = prefixes[guildId];
-    const prefix = guildPrefix == undefined ? '!' : guildPrefix;
+    const prefix = guildPrefix == undefined ? config.defaultPrefix : guildPrefix;
 
     // If the bot is pinged, give its prefix.
     const botMention = `<@${client.user.id}>`;
@@ -2461,8 +2462,7 @@ async function tetostat(name) {
 }
 
 try {
-  var token = fs.readFileSync('token.txt', 'utf8'); // Load the token from a text file.
-  client.login(token); // Login with the token.
+  client.login(config.token); // Login with the token.
 } catch (e) {
   console.log('Error:', e.stack);
 }
