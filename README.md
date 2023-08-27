@@ -17,7 +17,9 @@ A discord bot for Tetr.io that pulls up more advanced statistics and analytics t
 - Giving graphic design advice for some of the charts.
 <h3>Takathedinosaur</h3>
 - Making the excellent TakaTheBot and keeping me motivated to keep going. Also helped write one of the branches for this GitHub!
-<h3>Firenight Souls, LHayabuza, Sedaji, dan63047, cmdingo</h3>
+<h3>dan63047</h3>
+- Helped write one of the branches for this GitHub, as well as assisting with beta testing.
+<h3>Firenight Souls, LHayabuza, Sedaji, cmdingo</h3>
 - Beta testing for this build of the bot.
 <h3>Tronsi</h3>
 - Some help with code and implementation in the very early stages.
