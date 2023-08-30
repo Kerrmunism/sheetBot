@@ -204,11 +204,10 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
     }
   }
   // nameList.splice(0, 1);
-  const promises = []; 
+  const promises = [];
   for (let i = 0; i < Number(ids.length); i++) { // Loop through the list and grab stats using the same method as before.
     if (i != 0) {
       try {
-
         promises.push(axios({
           url: 'https://ch.tetr.io/api/users/' + String(ids[i]),
           method: 'get',
@@ -221,49 +220,49 @@ async function fetchUnranked() { // Fetch the unranked players based on unranked
   }
 
   const results = await Promise.allSettled(promises);
-  for(let y = 0; y < results.length; ++y) {
-      try {
+  for (let y = 0; y < results.length; ++y) {
+    try {
 
-        const result = results[y];
-        if(result.status == "rejected") {
-          console.error(result.reason);
-          continue;
-        }
-        let res = result.value;
-        value = (res.data);
-        let i = y + 1;
-        // This basically does the same thing as the assign function, but for unranked players.
-        if (value.success == false || value.data.user.league.rank != "z" || value.data.user.league.apm == null) { // If the user is no longer unranked
-          // or is banned / deleted
-          // if (i > -1) {
-            console.log(nameList[i] + " (" + i +   ", with id:" + ids[i-1]+" ) was removed!\nTheir rank is: " + value.data.user.league.rank + ", and their apm is " +  value.data.user.league.apm)
-            nameList.splice(i, 1)
-            ids.splice(i - 1, 1)
-            contents.splice((i * 2) - 1, 2)
-            results.splice(i-1, 1);
-            fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
-            y -= 1;
-            continue;
-            // }
-          }
-          console.log(nameList[i])
-          var tmp = new Player(value.data.user.username, // Make a new player by passing the following
-          value.data.user.league.apm, // APM 
-          value.data.user.league.pps, // PPS
-          value.data.user.league.vs, // VS
-          value.data.user.league.rating, // TR
-          value.data.user.league.glicko, // Glicko
-          value.data.user.league.rd, // RD
-          value.data.user // The whole of the data for the player.
-          )
-          tmp.position = 0
-          pList.push(tmp)
-          // Since we have the whole data being sent, no need to add the things that aren't automatically included.
-          unrankedCount += 1; // Then add one to the unranked player count
-        }
-        catch(e) { // In case the data fails to load for whatever reason.
-          console.error(e); 
-        } 
+      const result = results[y];
+      if (result.status == "rejected") {
+        console.error(result.reason);
+        continue;
+      }
+      let res = result.value;
+      value = (res.data);
+      let i = y + 1;
+      // This basically does the same thing as the assign function, but for unranked players.
+      if (value.success == false || value.data.user.league.rank != "z" || value.data.user.league.apm == null) { // If the user is no longer unranked
+        // or is banned / deleted
+        // if (i > -1) {
+        console.log(nameList[i] + " (" + i + ", with id:" + ids[i - 1] + " ) was removed!\nTheir rank is: " + value.data.user.league.rank + ", and their apm is " + value.data.user.league.apm)
+        nameList.splice(i, 1)
+        ids.splice(i - 1, 1)
+        contents.splice((i * 2) - 1, 2)
+        results.splice(i - 1, 1);
+        fs.writeFile(unrankedPlayers, contents.join(""), (err) => { if (err) throw err; })
+        y -= 1;
+        continue;
+        // }
+      }
+      console.log(nameList[i])
+      var tmp = new Player(value.data.user.username, // Make a new player by passing the following
+        value.data.user.league.apm, // APM 
+        value.data.user.league.pps, // PPS
+        value.data.user.league.vs, // VS
+        value.data.user.league.rating, // TR
+        value.data.user.league.glicko, // Glicko
+        value.data.user.league.rd, // RD
+        value.data.user // The whole of the data for the player.
+      )
+      tmp.position = 0
+      pList.push(tmp)
+      // Since we have the whole data being sent, no need to add the things that aren't automatically included.
+      unrankedCount += 1; // Then add one to the unranked player count
+    }
+    catch (e) { // In case the data fails to load for whatever reason.
+      console.error(e);
+    }
   }
   loadPrefixes();
 }
@@ -339,13 +338,13 @@ function everythingElse() {
       return
     }
     generalChannel = text.channelId // Set generalChannel to whatever channel the message is currently in.
-    const guildId = text.guild != undefined ? text.guild.id : ""; 
+    const guildId = text.guild != undefined ? text.guild.id : "";
     const guildPrefix = prefixes[guildId];
     const prefix = guildPrefix == undefined ? config.defaultPrefix : guildPrefix;
 
     // If the bot is pinged, give its prefix.
     const botMention = `<@${client.user.id}>`;
-    if(text.content.startsWith(botMention)) {
+    if (text.content.startsWith(botMention)) {
       prefixcommand([], prefix, text)
       return;
     }
@@ -353,9 +352,9 @@ function everythingElse() {
     // Instead of having to modify the code to add a server's prefix,
     // this will enable servers to define the prefix
     // they want for their server with a command.
-    if (text.content.startsWith(prefix) 
-    // && text.guild.id != "599005375907495936"
-  ) { // ! is the prefix used for commands. You could change this if you wanted to.
+    if (text.content.startsWith(prefix)
+      // && text.guild.id != "599005375907495936"
+    ) { // ! is the prefix used for commands. You could change this if you wanted to.
       processCommand(text, prefix)
     }
 
@@ -366,9 +365,9 @@ function everythingElse() {
     // }
   })
   function processCommand(text, prefix = '!') {
-    
 
-    
+
+
     client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
     let parsedText = ""
     // if (text.guild.id == "599005375907495936") {
@@ -399,7 +398,7 @@ function everythingElse() {
       return client.channels.cache.get(text.channelId).send("Too few parameters entered.")
     }
     // Different commands are called below. Self-explanatory.
-    if(command == "prefix") { // DONE
+    if (command == "prefix") { // DONE
       prefixcommand(parsedText.split(" ").slice(1), prefix, text)
       // Note: For a prefix command you don't need to filter problematic characters
     }
@@ -467,11 +466,11 @@ async function prefixcommand(name, prefix, text) {
   let generalChannelLocal = generalChannel;
   let channel = client.channels.cache.get(generalChannelLocal);
   const guild = text.guild;
-  if(guild == undefined) {
+  if (guild == undefined) {
     channel.send(`This bot's prefix is ${prefix}.`);
     return;
   }
-  if(name[0] != undefined) {
+  if (name[0] != undefined) {
     name[0] = String(name[0]);
   }
   else {
@@ -479,7 +478,7 @@ async function prefixcommand(name, prefix, text) {
     return;
   }
 
-  if(!text.member.permissions.has('ADMINISTRATOR')) {
+  if (!text.member.permissions.has('ADMINISTRATOR')) {
     channel.send("You do not have the permission to change the prefix for that server. You need `ADMINISTRATOR` permissions.");
     return;
   }
@@ -535,7 +534,7 @@ async function help(name) {
   }
   if (name[0] == "ac" || name[0] == "!ac") {
     helpContent = "`!ac` - Compares your stats to every other player and finds the closest person to each, individually.\n"
-      + "**Usage** - `!ac [name] [rank or position to start search or \"all\" for all ranks, optional] [rank or position to end search, optional]`\n"
+      + "**Usage** - `!ac [name or [apm] [pps] [vs]] [rank or position to start search or \"all\" for all ranks, optional] [rank or position to end search, optional]`\n"
       + "**Examples:** `!ac explorat0ri 400 4000`, `!ac explorat0ri x u`, `!ac explorat0ri all`"
       + "\n(*This command supports the use of average players. To use, simply type `$avg[rank]` where a player would be entered.*)"
       + "\n(*This command uses unranked players. They will show when setting your first position as 0, including `z` in the rank search or if no filters for rank or position are set.*)"
@@ -552,7 +551,7 @@ async function help(name) {
   }
   if (name[0] == "cc" || name[0] == "!cc") {
     helpContent = "`!cc` - Finds the closest player to you in both rate stats and overall.\n"
-      + "**Usage** - `!cc [name] [display number]`\n"
+      + "**Usage** - `!cc [name or [apm] [pps] [vs]] [display number]`\n"
       + "**Extra Parameters:** `playstyle`, `all`, `rate`, `norate`: All to be placed between the name and display number, though only one should be used at a time. Will make the command display only that respective category."
       + "\n(*This command supports the use of average players. To use, simply type `$avg[rank]` where a player would be entered.*)"
       + "\n(*This command uses unranked players. They will show when setting your first position as 0, including `z` in the rank search or if no filters for rank or position are set.*)"
@@ -566,7 +565,7 @@ async function help(name) {
   }
   if (name[0] == "rnk" || name[0] == "!rnk") {
     helpContent = "`!rnk` - Determines the placement of your stats among a group of players. You can think of it as showing your placement of each stat on the `!lb` command.\n"
-      + "**Usage** - `!rnk [name] [rank or position to start search at, optional] [rank or position to end search at, optional] [country using 2-letter code, \"LATAM\", \"E.U\" or \"null\", optional]`"
+      + "**Usage** - `!rnk [name or [apm] [pps] [vs]] [rank or position to start search at, optional] [rank or position to end search at, optional] [country using 2-letter code, \"LATAM\", \"E.U\" or \"null\", optional]`"
       + "\n(*This command supports the use of average players. To use, simply type `$avg[rank]` where a player would be entered.*)"
   }
   if (name[0] == "z" || name[0] == "!z") {
@@ -615,14 +614,35 @@ async function rankStat(name) {
   var rankSearchBottom;
   var notInList = false // Variable responsible for showing message if our player isn't in the list we're looking for.
   let properties = []
+  var propertyNames = ["APM", "PPS", "VS", "APP", "DS/Second", "DS/Piece", "APP+DS/Piece", "VS/APM",
+  "Cheese Index", "Garbage Effi", "Weighted APP", "Area", "Opener", "Plonk", "Stride",
+  "Inf. DS", "Games", "Wins", "Win Rate", "Est. TR", "TR", "Glicko"] 
+  // Kept here to look nice rather than displaying the raw variable names
+  // for this function. Making it global could almost certainly be used to save some boilerplate lines of code 
+  // but to be honest, I couldn't be bothered, at least not yet. If you wanted to rearrange some things
+  // (Namely DS/Second, DS/Piece and APP+DS/Piece), you could probably use it in !vst and !ac as well.
+  if (name.length > 2) {
+    if (!isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
+      player = new Player("EXAMPLE", name[0], name[1], name[2], 0, 0, 60, null)
+      name.splice(0, 3)
+      name.unshift("EXAMPLE")
+      console.log(name)
+      delete player.games; delete player.wins; delete player.wr; delete player.tr; delete player.glicko
+      propertyNames.splice(propertyNames.length - 2, 2)
+      console.log(propertyNames)
+      propertyNames.splice(propertyNames.length - 4, 3)
+      console.log(propertyNames)
+    }
+  }
   if (name.length > 6) { // Name is too long, too many parameters
     client.channels.cache.get(generalChannelLocal).send("Too many arguments.")
     return
   }
-  if (name.length < 1) { // Too few parameters
+  if (name.length < 1 && player == undefined) { // Too few parameters
     client.channels.cache.get(generalChannelLocal).send("Too few arguments.")
     return
   }
+  if (player == undefined) {
   if (name[0] != undefined) { // Set the name string if we have something to set it to
     var nameString = name[0].toLowerCase()
     if (nameString.length <= 2) { // If our name is too short to be a player name.
@@ -657,6 +677,7 @@ async function rankStat(name) {
           console.log(player) // Show a console log of them;
         })
     }
+  }
     if (player == null) { // Some of the axios stuff won't return properly unless we do this.
       return
     }
@@ -749,9 +770,11 @@ async function rankStat(name) {
     }
   }
   console.log(properties)
+  if (player.name != "EXAMPLE") {
   properties.push('esttr') // Push these afterwards so they show up at the end of the display together.
   properties.push('tr')
   properties.push('glicko')
+  }
   console.log(properties)
   if (tempPList.findIndex(crit => crit.name === player.name) == -1) {
     tempPList.push(player)
@@ -778,12 +801,6 @@ async function rankStat(name) {
     [player.name],
     [' '],
   ]
-  var propertyNames = ["APM", "PPS", "VS", "APP", "DS/Second", "DS/Piece", "APP+DS/Piece", "VS/APM",
-    "Cheese Index", "Garbage Effi", "Weighted APP", "Area", "Opener", "Plonk", "Stride",
-    "Inf. DS", "Games", "Wins", "Win Rate", "Est. TR", "TR", "Glicko"] // Kept here to look nice rather than displaying the raw variable names
-  // for this function. Making it global could almost certainly be used to save some boilerplate lines of code 
-  // but to be honest, I couldn't be bothered, at least not yet. If you wanted to rearrange some things
-  // (Namely DS/Second, DS/Piece and APP+DS/Piece), you could probably use it in !vst and !ac as well.
   for (let i = 0; i < properties.length; i++) {
     data.push([propertyNames[i]])
   }
@@ -1827,8 +1844,15 @@ async function copycat(name) {
     category = "old"
     number = 1
   } else {
-    category = name[1].toLowerCase()
-    number = Number(name[2])
+    if (!isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
+      player = new Player("EXAMPLE", name[0], name[1], name[2], 0, 0, 60, null)
+      name.splice(0, 3)
+      name.unshift("EXAMPLE")
+      console.log(name)
+    } else {
+      category = name[1].toLowerCase()
+      number = Number(name[2])
+    }
   }
   // Both of the below are just for people who might input the wrong name for the category unknowingly.
   if (name.length > 2) {
@@ -1844,13 +1868,23 @@ async function copycat(name) {
   if (category == "overall") {
     category = "all"
   }
-  if (!isNaN(name[1])) {
+  if (!isNaN(name[1]) && player == undefined) {
     category = "old"
     number = Number(name[1])
   }
   console.log(name[1])
   console.log(number)
-  if (isNaN(number)) {
+  if (player != undefined && name[1] == undefined) {
+    category = "old"
+  } else {
+    if (player != undefined && name[1] != undefined) {
+      category = String(name[1]).toLowerCase()
+      if (name[2] != undefined) {
+        number = Number(name[2])
+      }
+    }
+  }
+  if (isNaN(number) || number == undefined) {
     number = 5
   }
   console.log(number)
@@ -1866,10 +1900,10 @@ async function copycat(name) {
   if (category == "nonrate" || category == "basic") {
     category = "norate"
   }
-  if (name[0] == undefined || name[0] == "undefined") { // If we don't have a first parameter (shouldn't be possible)
+  if ((name[0] == undefined || name[0] == "undefined") && player == undefined) { // If we don't have a first parameter (shouldn't be possible)
     return client.channels.cache.get(generalChannelLocal).send("No player was chosen! To use this command, please type `!cc [name]` and any other specifications you need.");
   }
-  if (String(name[0]).length > 2 && !name[0].includes('$')) {
+  if (String(name[0]).length > 2 && !name[0].includes('$') && player == undefined) {
     await axios.get('https://ch.tetr.io/api/users/' + String(name[0]).toLowerCase()) // Fetch with axios
       .then(function (response) { // Then do the following...
         output = (response.data); // Assign output to the raw data.
@@ -1888,7 +1922,7 @@ async function copycat(name) {
         });
       })
   } else {
-    if (name[0].length > 4 && name[0].length <= 6) {
+    if (name[0].length > 4 && name[0].length <= 6 && player == undefined) {
       let avgRank = ""
       if (String(name[0].slice(0, 4)).toLowerCase() == "$avg") {
         if (rankArray.indexOf(String(name[0].slice(-2).toLowerCase())) == -1) {
@@ -1958,6 +1992,15 @@ async function allcomp(name) {
   let closestPlayers = [] // Array to hold our closest players
   let generalChannelLocal = generalChannel
   let tempPList = pList.map(a => { return { ...a } }) // Copy of the pList just in case we need it.
+  if (name.length > 2) {
+    if (!isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
+      player = new Player("EXAMPLE", name[0], name[1], name[2], 0, 0, 60, null)
+      name.splice(0, 3)
+      name.unshift("EXAMPLE")
+      console.log(name)
+    }
+  }
+  if (player == undefined) {
   if (name[0] != undefined) {
     var nameString = name[0].toLowerCase()
     if (nameString.length <= 2) {
@@ -1995,6 +2038,7 @@ async function allcomp(name) {
         })
     }
   }
+}
   console.log(nameString)
   let properties = []
   for (const property in player) {
