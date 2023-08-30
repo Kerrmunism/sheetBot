@@ -627,7 +627,7 @@ async function rankStat(name) {
       name.splice(0, 3)
       name.unshift("EXAMPLE")
       console.log(name)
-      delete player.games; delete player.wins; delete player.wr; delete player.tr; delete player.glicko
+      delete player.games; delete player.wins; delete player.wr; delete player.tr; delete player.glicko;
       propertyNames.splice(propertyNames.length - 2, 2)
       console.log(propertyNames)
       propertyNames.splice(propertyNames.length - 4, 3)
@@ -770,8 +770,8 @@ async function rankStat(name) {
     }
   }
   console.log(properties)
-  if (player.name != "EXAMPLE") {
   properties.push('esttr') // Push these afterwards so they show up at the end of the display together.
+  if (player.name != "EXAMPLE") {
   properties.push('tr')
   properties.push('glicko')
   }
