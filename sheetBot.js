@@ -1775,11 +1775,6 @@ async function triangle(name, playstyle) {
   }
   for (let i = 0; i < name.length; i++) { // You could combine this with the other loop for name.length
     // but it becomes a lot harder to read when you do.
-    if (String(name[i]).toLowerCase() == "-quad" || String(name[i]).toLowerCase() == "-quadrant" || String(name[i]).toLowerCase() == "-scatter" || String(name[i]).toLowerCase() == "-s") {
-      charttype = "scatter"
-      name.splice(i, 1)
-      i -= 1
-    }
     if (String(name[i]).length <= 2) {
       client.channels.cache.get(generalChannelLocal).send(name[i] + " is not a valid user as their name is too short to be valid.")
       name.splice(i, 1)
