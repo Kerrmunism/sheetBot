@@ -2365,6 +2365,10 @@ async function versus(name, relative, tableValue) {
         output.data.user.league.rd,
         output.data.user)
       vsPlayers.push(temp);
+      let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
+      if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
+        maximum = maxThisPlayer // Set saved max to this player's max
+      }
     }
     catch (e) { // In case the data fails to load for whatever reason.
       console.error(e);
