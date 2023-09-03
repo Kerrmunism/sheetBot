@@ -1631,6 +1631,10 @@ async function triangle(name, playstyle) {
   if (name[name.length - 1] == "-s" && playstyle == false) {
     return client.channels.cache.get(generalChannelLocal).send("The -s parameter is only supported for `!psq`, not `!sq`.");
   }
+  if (String(name[name.length - 1]).toLowerCase() == "-quad" || String(name[name.length - 1]).toLowerCase() == "-quadrant" || String(name[name.length - 1]).toLowerCase() == "-scatter" || String(name[name.length - 1]).toLowerCase() == "-s") {
+    charttype = "scatter"
+    name.pop()
+  }
   async function updateChart() {
     if (charttype == "radar") {
       chartData = {
