@@ -1622,18 +1622,19 @@ async function triangle(name, playstyle) {
   var players = []
   var bgColors = ['rgba(204, 253, 232, 0.65)', 'rgba(48, 186, 255, 0.65)', 'rgba(240, 86, 127, 0.65)', 'rgba(8, 209, 109, 0.65)', 'rgba(237, 156, 17, 0.65)'] // Will hold our fill colors
   var borderColors = ['rgba(75, 118, 191, 1)', 'rgba(204, 33, 201, 1)', 'rgba(250, 5, 70, 1), rgba(28, 232, 130, 1)', 'rgba(250, 177, 42, 1)'] // Will hold the color of the outline
-  if (name[name.length - 1] == "-v") {
+  if (String(name[name.length - 1]).toLowerCase() == "-v") {
     bgColors = ['rgba(204, 253, 232, 0)', 'rgba(48, 186, 255, 0)', 'rgba(240, 86, 127, 0)', 'rgba(8, 209, 109, 0)', 'rgba(237, 156, 17, 0)']
     borderColors = ['rgba(75, 118, 191, 0.5)', 'rgba(204, 33, 201, 0.5)', 'rgba(250, 5, 70, 0.5)', 'rgba(28, 232, 130, 0.5)', 'rgba(250, 177, 42, 0.5)']
     name.pop()
     client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
   }
-  if (name[name.length - 1] == "-s" && playstyle == false) {
+  if (String(name[name.length - 1]).toLowerCase() == "-s" && playstyle == false) {
     return client.channels.cache.get(generalChannelLocal).send("The -s parameter is only supported for `!psq`, not `!sq`.");
-  }
-  if (String(name[name.length - 1]).toLowerCase() == "-quad" || String(name[name.length - 1]).toLowerCase() == "-quadrant" || String(name[name.length - 1]).toLowerCase() == "-scatter" || String(name[name.length - 1]).toLowerCase() == "-s") {
-    charttype = "scatter"
-    name.pop()
+  } else {
+    if (String(name[name.length - 1]).toLowerCase() == "-quad" || String(name[name.length - 1]).toLowerCase() == "-quadrant" || String(name[name.length - 1]).toLowerCase() == "-scatter" || String(name[name.length - 1]).toLowerCase() == "-s") {
+      charttype = "scatter"
+      name.pop()
+    }
   }
   async function updateChart() {
     if (charttype == "radar") {
@@ -1772,6 +1773,11 @@ async function triangle(name, playstyle) {
     var url = await axios.post('https://quickchart.io/chart/create', chartData)
     client.channels.cache.get(generalChannelLocal).send(url.data.url)
     return
+  } else {
+    if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] <= 0 || name[1] <= 0 || name[2] <= 0) {
+      client.channels.cache.get(generalChannelLocal).send("Please make sure that you don't enter negative or zero numbers as your input.")
+      return
+    }
   }
   for (let i = 0; i < name.length; i++) { // You could combine this with the other loop for name.length
     // but it becomes a lot harder to read when you do.
@@ -2298,6 +2304,11 @@ async function versus(name, relative, tableValue) {
       await tableMake()
       return
     }
+  } else {
+    if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] <= 0 || name[1] <= 0 || name[2] <= 0) {
+      client.channels.cache.get(generalChannelLocal).send("Please make sure that you don't enter negative or zero numbers as your input.")
+      return
+    }
   }
   for (let i = 0; i < name.length; i++) { // You could combine this with the other loop for name.length
     // but it becomes a lot harder to read when you do (and also breaks some things!)
@@ -2364,10 +2375,6 @@ async function versus(name, relative, tableValue) {
         output.data.user.league.rd,
         output.data.user)
       vsPlayers.push(temp);
-      let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
-      if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
-        maximum = maxThisPlayer // Set saved max to this player's max
-      }
     }
     catch (e) { // In case the data fails to load for whatever reason.
       console.error(e);
