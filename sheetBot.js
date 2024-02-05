@@ -2191,14 +2191,20 @@ async function versus(name, relative, tableValue) {
   var chartData;
   var strictProb // Has to do with win rate
   var estProb // Same with this
+  var fileWrite = false
   console.log(name)
   if (name[name.length - 1] == "-v") {
     bgColors = ['rgba(204, 253, 232, 0)', 'rgba(48, 186, 255, 0)', 'rgba(240, 86, 127, 0)', 'rgba(8, 209, 109, 0)', 'rgba(237, 156, 17, 0)']
     borderColors = ['rgba(75, 118, 191, 0.5)', 'rgba(204, 33, 201, 0.5)', 'rgba(250, 5, 70, 0.5)', 'rgba(28, 232, 130, 0.5)', 'rgba(250, 177, 42, 0.5)']
     name.pop()
     if (tableValue == false) {
-    client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
+      client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
     }
+  }
+  if (name[name.length - 1] == "-j") {
+    client.channels.cache.get(generalChannelLocal).send("-j parameter used! A JSON file will be output.");
+    fileWrite = true
+    name.pop()
   }
   async function updateChart() {
     chartData = {
@@ -2268,6 +2274,14 @@ async function versus(name, relative, tableValue) {
       ['Weighted APP:'],
       ['Area:']
     ]
+    if (vsPlayers.length == 2) {
+      data.push(['Win Rate (Glicko): '])
+      data.push(['Win Rate (Stats): '])
+      vsPlayers[0].strictProb = Number(((1 / (1 + Math.pow(10, (vsPlayers[1].glicko - vsPlayers[0].glicko) / (400 * Math.sqrt(1 + (3 * Math.pow(0.0057564273, 2) * (Math.pow(vsPlayers[0].rd, 2) + Math.pow(vsPlayers[1].rd, 2)) / Math.pow(Math.PI, 2)))))))) * (99 + 1)).toFixed(3)
+      vsPlayers[0].estProb = Number(((1 / (1 + Math.pow(10, (vsPlayers[1].estglicko - vsPlayers[0].estglicko) / (400 * Math.sqrt(1 + (3 * Math.pow(0.0057564273, 2) * (Math.pow(vsPlayers[0].rd, 2) + Math.pow(vsPlayers[1].rd, 2)) / Math.pow(Math.PI, 2)))))))) * (99 + 1)).toFixed(3)
+      vsPlayers[1].strictProb = Number((100 - vsPlayers[0].strictProb).toFixed(3))
+      vsPlayers[1].estProb = Number((100 - vsPlayers[0].estProb).toFixed(3))
+    }
     console.log(vsPlayers)
     for (let i = 0; i < vsPlayers.length; i++) {
       data[0].push(vsPlayers[i].name); data[1].push(vsPlayers[i].apm.toFixed(4)); data[2].push(vsPlayers[i].pps.toFixed(4));
@@ -2275,6 +2289,11 @@ async function versus(name, relative, tableValue) {
       data[6].push(vsPlayers[i].dsapp.toFixed(4)); data[7].push(vsPlayers[i].dss.toFixed(4)); data[8].push(vsPlayers[i].vsapm.toFixed(4));
       data[9].push(vsPlayers[i].ci.toFixed(4)); data[10].push(vsPlayers[i].ge.toFixed(4)); data[11].push(vsPlayers[i].wapp.toFixed(4));
       data[12].push(vsPlayers[i].area.toFixed(4));
+      console.log(data.length)
+      console.log(vsPlayers.length)
+      if (data.length == 15) {
+        data[13].push(vsPlayers[i].strictProb); data[14].push(vsPlayers[i].estProb)
+      }
       if (Number.isInteger((i + 1) / 4)) {
         client.channels.cache.get(generalChannelLocal).send("```" + table(data) + "```");
         for (let j = 0; j < 4; j++) {
@@ -2286,6 +2305,10 @@ async function versus(name, relative, tableValue) {
     }
     console.log(table(data))
     client.channels.cache.get(generalChannelLocal).send("```" + table(data) + "```");
+  }
+  async function jsonWrite() {
+    fs.writeFile("versus.json", JSON.stringify(vsPlayers), (err) => { if (err) throw err; })
+    return
   }
   var temp;
   if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] > 0 && name[1] > 0 && name[2] > 0) {
@@ -2302,6 +2325,10 @@ async function versus(name, relative, tableValue) {
       return
     } else {
       await tableMake()
+      if (fileWrite == true) {
+        await jsonWrite()
+        client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
+      }
       return
     }
   } else {
@@ -2356,10 +2383,6 @@ async function versus(name, relative, tableValue) {
               vsPlayers.push(temp)
             }
           }
-          let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
-          if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
-            maximum = maxThisPlayer // Set saved max to this player's max
-          }
         }
         if (!name[i].includes("$")) {
           client.channels.cache.get(generalChannelLocal).send(name[i] + " is not a valid user! (Perhaps they were banned?)")
@@ -2374,6 +2397,10 @@ async function versus(name, relative, tableValue) {
         output.data.user.league.glicko,
         output.data.user.league.rd,
         output.data.user)
+      let maxThisPlayer = Math.max(Number(temp.apm) * apmweight.toFixed(4), Number(temp.pps) * ppsweight.toFixed(4), Number(Number(temp.vs) * vsweight).toFixed(4), Number(Number(temp.app) * appweight).toFixed(4), Number(Number(temp.dss) * dssweight).toFixed(4), Number(Number(temp.dsp) * dspweight).toFixed(4), Number(Number(temp.dsapp) * dsappweight).toFixed(4), Number(Number((temp.vsapm - 2) * vsapmweight) * 2.5).toFixed(4), Number(Number(temp.ci) * ciweight).toFixed(4), Number(Number(temp.ge) * geweight).toFixed(4))
+      if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
+        maximum = maxThisPlayer // Set saved max to this player's max
+      }
       vsPlayers.push(temp);
     }
     catch (e) { // In case the data fails to load for whatever reason.
@@ -2400,7 +2427,11 @@ async function versus(name, relative, tableValue) {
     })
     return
   } else {
-  await tableMake()
+    await tableMake()
+    if (fileWrite == true) {
+      await jsonWrite()
+      client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
+    }
   }
   return
 }
