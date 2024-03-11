@@ -8,6 +8,7 @@ const QuickChart = require('quickchart-js');
 const fs = require('fs'); // Allows node.js to use the file system.
 const { ClientRequest } = require('http');
 const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"))
+const { sheetBotHelper } = require('./modules/help')
 
 var generalChannel = config.generalChannelID
 
@@ -402,7 +403,7 @@ function everythingElse() {
       tetostat(name)
     }
     if (command == "help") { // Not Started
-      help(name)
+      sheetBotHelper(client, generalChannel, name)
     }
     if (command == "vs") { // DONE
       versus(name, false, false) // First is for relative, second is for tableValue
