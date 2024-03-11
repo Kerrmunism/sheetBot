@@ -172,3 +172,18 @@ const helpContentList = [
   }
 ]
 
+exports.sheetBotHelper = async (client, channelID, name) => {
+  const channel = client.channels.cache.get(channelID);
+  let alias = 'default';
+  
+  if (name[0] !== undefined) {
+    alias = String(name[0]).toLowerCase();
+  }
+
+  const content = helpContentList.find(content => content.aliases.includes(alias));
+
+  if (content) {
+    // Trim indentation and send message
+    await channel.send(content.message.replace(/^ +/gm, '')); // Send helpContent;
+  }
+}
