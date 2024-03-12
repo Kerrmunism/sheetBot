@@ -2115,14 +2115,25 @@ async function versus(name, relative, tableValue) {
         type: 'radar',
         data: {
           labels: ['APM', 'PPS', 'VS', 'APP', 'DS/Second', 'DS/Piece', 'APP+DS/Piece', 'VS/APM', 'Cheese Index', 'Garbage Effi.'],
-          datasets: vsPlayers.map((dummy, i) => ( // dummy is a dummy value, for some reason I need it.
-            {
-              label: vsPlayers[i].name,
-              data: [Number(Number(vsPlayers.map(a => a.apm)[i] * apmweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.pps)[i] * ppsweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.vs)[i] * vsweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.app)[i] * appweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.dss)[i] * dssweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.dsp)[i] * dspweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.dsapp)[i] * dsappweight).toFixed(4)), Number(Number((vsPlayers.map(a => a.vsapm - ((Boolean(relative)) ? 2 : 0))[i] * vsapmweight) * ((Boolean(relative)) ? 2.5 : 1)).toFixed(4)), Number(Number(vsPlayers.map(a => a.ci)[i] * ciweight).toFixed(4)), Number(Number(vsPlayers.map(a => a.ge)[i] * geweight).toFixed(4))],
+          datasets: vsPlayers.map((player, i) => {
+            return {
+              label: player.name,
+              data: [
+                (player.apm * apmweight).toFixed(4),
+                (player.pps * ppsweight).toFixed(4),
+                (player.vs * vsweight).toFixed(4),
+                (player.app * appweight).toFixed(4),
+                (player.dss * dssweight).toFixed(4),
+                (player.dsp * dspweight).toFixed(4),
+                (player.dsapp * dsappweight).toFixed(4),
+                ((player.vsapm - (relative ? 2 : 0) * vsapmweight) * (relative ? 2.5 : 1)).toFixed(4),
+                (player.ci * ciweight).toFixed(4),
+                (player.ge * geweight).toFixed(4)
+              ],
               backgroundColor: bgColors[i],
               borderColor: borderColors[i],
             }
-          ))
+          }),
         },
         options: {
           legend: {
