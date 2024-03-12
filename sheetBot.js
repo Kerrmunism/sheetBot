@@ -2232,17 +2232,17 @@ async function versus(name, relative, tableValue) {
     if (maxThisPlayer > maximum) { // If this player's max is higher than saved max
       maximum = maxThisPlayer // Set saved max to this player's max
     }
-    if (tableValue == false) {
-      updateChart()
-      var url = await axios.post('https://quickchart.io/chart/create', chartData)
-      client.channels.cache.get(generalChannelLocal).send(url.data.url)
-      return
-    } else {
+    if (tableValue) {
       await tableMake()
       if (fileWrite) {
         await jsonWrite()
         client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
       }
+      return
+    } else {
+      updateChart()
+      var url = await axios.post('https://quickchart.io/chart/create', chartData)
+      client.channels.cache.get(generalChannelLocal).send(url.data.url)
       return
     }
   } else {
