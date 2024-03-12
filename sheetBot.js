@@ -2330,7 +2330,13 @@ async function versus(name, relative, tableValue) {
     estProb = Number(((1 / (1 + Math.pow(10, (vsPlayers[1].estglicko - vsPlayers[0].estglicko) / (400 * Math.sqrt(1 + (3 * Math.pow(0.0057564273, 2) * (Math.pow(vsPlayers[0].rd, 2) + Math.pow(vsPlayers[1].rd, 2)) / Math.pow(Math.PI, 2)))))))) * (99 + 1)).toFixed(3)
   }
   console.log(maximum)
-  if (tableValue == false) {
+  if (tableValue) {
+    await tableMake()
+    if (fileWrite) {
+      await jsonWrite()
+      client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
+    }
+  } else {
     await updateChart()
     if (vsPlayers.length > 1) {
       client.channels.cache.get(generalChannelLocal).send(vsPlayers[0].name + " has an approximated " + strictProb + "% chance of beating " + vsPlayers[1].name + " based on glicko.\n"
@@ -2340,12 +2346,6 @@ async function versus(name, relative, tableValue) {
       client.channels.cache.get(generalChannelLocal).send(response.data.url)
     })
     return
-  } else {
-    await tableMake()
-    if (fileWrite) {
-      await jsonWrite()
-      client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
-    }
   }
   return
 }
