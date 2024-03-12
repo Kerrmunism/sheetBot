@@ -2446,12 +2446,12 @@ async function tetostat(name) {
       //.setThumbnail('https://tetr.io/user-content/avatars/' + statPlayer.id + '.jpg?rv=' + statPlayer.avatar)
       .setDescription("sheetBot - A bot used to grab more advanced statistics from the ch.tetr.io API")
       .addFields( // Simply add all the lines.
-        { name: 'APM', value: String(statPlayer.apm.toFixed(2)), inline: true }, // This one in particular needs it
-        { name: 'PPS', value: String(statPlayer.pps.toFixed(2)), inline: true },
-        { name: 'VS', value: String(statPlayer.vs.toFixed(2)), inline: true },
-        { name: 'DS/Piece', value: String(statPlayer.dsp.toFixed(4)), inline: true },
-        { name: 'APP', value: String(statPlayer.app.toFixed(4)), inline: true },
-        { name: 'APP+DS/Piece', value: String(statPlayer.dsapp.toFixed(4)), inline: true },
+        { name: 'APM', value: statPlayer.apm.toFixed(2), inline: true }, // This one in particular needs it
+        { name: 'PPS', value: statPlayer.pps.toFixed(2), inline: true },
+        { name: 'VS', value: statPlayer.vs.toFixed(2), inline: true },
+        { name: 'DS/Piece', value: statPlayer.dsp.toFixed(4), inline: true },
+        { name: 'APP', value: statPlayer.app.toFixed(4), inline: true },
+        { name: 'APP+DS/Piece', value: statPlayer.dsapp.toFixed(4), inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
         { name: 'Rank', value: String(statPlayer.rank).toUpperCase(), inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
