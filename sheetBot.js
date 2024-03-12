@@ -726,7 +726,7 @@ async function rankStat(name) {
     }
   }
   console.log(table(data, config))
-  if (notInList == true) {
+  if (notInList) {
     client.channels.cache.get(generalChannelLocal).send(player.name + " is not in the specified group of players! " +
       "Because of this, the table below is a hypothetical- only showing where the player would be if they were in the group.")
   }
@@ -832,7 +832,7 @@ function getAverage(name, median) {
     return client.channels.cache.get(generalChannelLocal).send("There is nobody that matches the specifications you entered!"
       + " This is most likely caused by entering a country and rank combination with no people in it.")
   }
-  if (median == true) {
+  if (median) {
     let medians = []
     let countryMedians = []
     const median = arr => {
@@ -2239,7 +2239,7 @@ async function versus(name, relative, tableValue) {
       return
     } else {
       await tableMake()
-      if (fileWrite == true) {
+      if (fileWrite) {
         await jsonWrite()
         client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
       }
@@ -2342,7 +2342,7 @@ async function versus(name, relative, tableValue) {
     return
   } else {
     await tableMake()
-    if (fileWrite == true) {
+    if (fileWrite) {
       await jsonWrite()
       client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
     }
