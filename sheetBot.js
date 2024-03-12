@@ -2238,13 +2238,12 @@ async function versus(name, relative, tableValue) {
         await jsonWrite()
         client.channels.cache.get(generalChannelLocal).send({ files: ["versus.json"] });
       }
-      return
     } else {
       updateChart()
       var url = await axios.post('https://quickchart.io/chart/create', chartData)
       client.channels.cache.get(generalChannelLocal).send(url.data.url)
-      return
     }
+    return
   } else {
     if (name.length == 3 && !isNaN(name[0]) && !isNaN(name[1]) && !isNaN(name[2]) && name[0] <= 0 || name[1] <= 0 || name[2] <= 0) {
       client.channels.cache.get(generalChannelLocal).send("Please make sure that you don't enter negative or zero numbers as your input.")
@@ -2345,9 +2344,7 @@ async function versus(name, relative, tableValue) {
     var url = axios.post('https://quickchart.io/chart/create', chartData).then(function (response) {
       client.channels.cache.get(generalChannelLocal).send(response.data.url)
     })
-    return
   }
-  return
 }
 
 async function tetostat(name) {
