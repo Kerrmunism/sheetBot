@@ -2100,7 +2100,7 @@ async function versus(name, relative, tableValue) {
     bgColors = ['rgba(204, 253, 232, 0)', 'rgba(48, 186, 255, 0)', 'rgba(240, 86, 127, 0)', 'rgba(8, 209, 109, 0)', 'rgba(237, 156, 17, 0)']
     borderColors = ['rgba(75, 118, 191, 0.5)', 'rgba(204, 33, 201, 0.5)', 'rgba(250, 5, 70, 0.5)', 'rgba(28, 232, 130, 0.5)', 'rgba(250, 177, 42, 0.5)']
     name.pop()
-    if (tableValue == false) {
+    if (!tableValue) {
       client.channels.cache.get(generalChannelLocal).send("-v parameter used! The radar graph will now be more visible. Colors after the first 5 will be auto-generated.");
     }
   }
