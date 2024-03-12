@@ -1236,10 +1236,10 @@ async function leaderboard(name, reverse) {
     client.channels.cache.get(generalChannelLocal).send("Invalid leaderboard argument. Make sure it's either `apm, pps, vs, app, dspiece, dssecond, dsapppiece, vsapm, cheese, ge, area, wapp, esttr, tr, glicko, wins, games` or `wr`.")
     return
   }
-  if (reverse == false) {
-    sortPList = tempPList.sort((a, b) => { if (a[type] < b[type]) return 1; if (a[type] > b[type]) return -1; if (a[type] == b[type]) return 0; })
-  } else {
+  if (reverse) {
     sortPList = tempPList.sort((a, b) => { if (a[type] > b[type]) return 1; if (a[type] < b[type]) return -1; if (a[type] == b[type]) return 0; })
+  } else {
+    sortPList = tempPList.sort((a, b) => { if (a[type] < b[type]) return 1; if (a[type] > b[type]) return -1; if (a[type] == b[type]) return 0; })
   }
   var string = "```"
   for (let i = Math.max(((number * page) + (page - (page * 1))), 0); i < number + Math.max(((number) * (page)) + (page - (page * 1)), 0); i++) {
