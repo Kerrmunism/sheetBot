@@ -1812,9 +1812,9 @@ async function copycat(name) {
       }
     }
   }
-  if (isNaN(number) || number == undefined) {
-    number = 5
-  }
+
+  number = isNaN(number) ? 5 : number
+
   console.log(number)
   if (number > 50 || (number > 13 && category == "old")) {
     return client.channels.cache.get(generalChannelLocal).send("Please keep the display number to 50 or lower, or to 13 or lower if no category is specified. This is due to discord character limits.");
