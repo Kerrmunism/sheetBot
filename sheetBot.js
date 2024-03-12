@@ -2156,8 +2156,8 @@ async function versus(name, relative, tableValue) {
             },
             ticks: {
               min: 0,
-              max: (relative == false) ? 180 : maximum,
-              stepSize: (relative == false) ? 30 : (maximum / 6),
+              max: relative ? maximum : 180,
+              stepSize: relative ? maximum / 6 : 30,
               fontColor: 'blue',
               display: false
             },
