@@ -1473,7 +1473,7 @@ function operate(name) {
   }
   if (search.includes("rank")) { // Change ranks back for proper display
     console.log("We hit it!")
-    tempPList.forEach(function (p) {
+    tempPList.forEach(p => {
       p.rank = rankArray[rankArray.length - 1 - p.rank]
     });
     /*
