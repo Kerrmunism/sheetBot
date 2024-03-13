@@ -1,5 +1,5 @@
 # sheetBot
-A discord bot for Tetr.io that pulls up more advanced statistics and analytics than Tetra Channel provides.
+A Discord bot for TETR.IO that pulls up more advanced statistics and analytics than Tetra Channel provides.
 
 ## Branch Contributors
 <b>Takathedinosaur, dan63047, TossedB/TossedBloom</b>
@@ -12,7 +12,7 @@ A discord bot for Tetr.io that pulls up more advanced statistics and analytics t
 <h3>Zepheniah and Dragonboy</h3>
 - Helping with the creation of Garbage Effi.
 <h3>Windcatcher</h3>
-- Inspiration for doing this sheet in the first place, as well as being the first to expose me to formulas like DS/Piece.
+- Inspiration for making this bot in the first place, as well as being the first to expose me to formulas like DS/Piece.
 <h3>Haikai</h3>
 - Giving graphic design advice for some of the charts.
 <h3>Takathedinosaur</h3>
