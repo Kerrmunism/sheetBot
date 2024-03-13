@@ -2126,7 +2126,7 @@ async function versus(name, relative, tableValue) {
                 (player.dss * dssweight).toFixed(4),
                 (player.dsp * dspweight).toFixed(4),
                 (player.dsapp * dsappweight).toFixed(4),
-                ((player.vsapm - (relative ? 2 : 0) * vsapmweight) * (relative ? 2.5 : 1)).toFixed(4),
+                ((player.vsapm - (relative ? 2 : 0)) * vsapmweight * (relative ? 2.5 : 1)).toFixed(4),
                 (player.ci * ciweight).toFixed(4),
                 (player.ge * geweight).toFixed(4)
               ],
