@@ -27,7 +27,7 @@ const helpContentList = [
   },
   {
     name: 'Versus',
-    aliases: ['vs', '!vst'],
+    aliases: ['vs', '!vs'],
     message: `
     \`!vs\` - Compares the stats of two users (or one, if you input one name twice), in a more complicated version of the !sq command radar graph with more stats shown.
     **Usage** - \`!vs [name1] [name2, optional] [name3, optional] [name4, optional] [name5, optional]\`... (many can be added) or \`!vs [apm] [pps] [vs]\`
@@ -68,7 +68,7 @@ const helpContentList = [
   },
   {
     name: 'AC',
-    aliases: ['ac', '!act'],
+    aliases: ['ac', '!ac'],
     message: `
     \`!ac\` - Compares your stats to every other player and finds the closest person to each, individually.
     **Usage** - \`!ac [name or [apm] [pps] [vs]] [rank or position to start search or "all" for all ranks, optional] [rank or position to end search, optional]\`

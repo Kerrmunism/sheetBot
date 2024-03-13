@@ -1387,16 +1387,19 @@ function operate(name) {
   }
   for (let i = 0; i < name.length; i++) { // For every argument given
     console.log("name[i]: " + name[i])
-    if (name[i].includes("<")) {
-      // Check the included symbols (<, >, =) to see which is used. 
+    if (name[i].includes("<")) { // Check the included symbols (<, >, =) to see which is used. 
       // There should only be one, which is why else is fine here.
       op[i] = "<"
-    } else if (name[i].includes(">")) {
-      op[i] = ">"
-    } else if (name[i].includes("="))  {
-      op[i] = "="
     } else {
-      return client.channels.cache.get(generalChannelLocal).send("An operation should be included. For example, `!o apm>80`. Valid operations are >, < and =.)")
+      if (name[i].includes(">")) {
+        op[i] = ">"
+      } else {
+        if (name[i].includes("=")) {
+          op[i] = "="
+        } else { // If no valid operations are included,
+          return client.channels.cache.get(generalChannelLocal).send("An operation should be included. For example, `!o apm>80`. Valid operations are >, < and =.)")
+        }
+      }
     }
     crit[i] = name[i].substring(0, name[i].indexOf(op[i]))
     val[i] = Number(name[i].substring(name[i].indexOf(op[i]) + 1, name[i].length))
