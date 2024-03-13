@@ -2,7 +2,7 @@
 A discord bot for Tetr.io that pulls up more advanced statistics and analytics than Tetra Channel provides.
 
 ## Branch Contributors
-<b>Takathedinosaur, dan63047</b>
+<b>Takathedinosaur, dan63047, TossedB/TossedBloom</b>
 
 ## Other Notable Contributions
 <h3>pncl and iLumine</h3>
