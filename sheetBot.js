@@ -1476,7 +1476,7 @@ function operate(name) {
   }
   if (search.includes("rank")) { // Change ranks back for proper display
     console.log("We hit it!")
-    tempPList.forEach(function (p) {
+    tempPList.forEach(p => {
       p.rank = rankArray[rankArray.length - 1 - p.rank]
     });
     /*
@@ -1812,9 +1812,9 @@ async function copycat(name) {
       }
     }
   }
-  if (isNaN(number) || number == undefined) {
-    number = 5
-  }
+
+  number = isNaN(number) ? 5 : number
+
   console.log(number)
   if (number > 50 || (number > 13 && category == "old")) {
     return client.channels.cache.get(generalChannelLocal).send("Please keep the display number to 50 or lower, or to 13 or lower if no category is specified. This is due to discord character limits.");
@@ -2156,8 +2156,8 @@ async function versus(name, relative, tableValue) {
             },
             ticks: {
               min: 0,
-              max: (relative == false) ? 180 : maximum,
-              stepSize: (relative == false) ? 30 : (maximum / 6),
+              max: relative ? maximum : 180,
+              stepSize: relative ? maximum / 6 : 30,
               fontColor: 'blue',
               display: false
             },
@@ -2411,23 +2411,23 @@ async function tetostat(name) {
       .setThumbnail('https://tetr.io/user-content/avatars/' + statPlayer.id + '.jpg?rv=' + statPlayer.avatar)
       .setDescription("sheetBot - A bot used to grab more advanced statistics from the ch.tetr.io API")
       .addFields( // Simply add all the lines.
-        { name: 'APM', value: String(statPlayer.apm.toFixed(2)), inline: true },
-        { name: 'PPS', value: String(statPlayer.pps.toFixed(2)), inline: true },
-        { name: 'VS', value: String(statPlayer.vs.toFixed(2)), inline: true },
-        { name: 'DS/Second', value: String(statPlayer.dss.toFixed(4)), inline: true },
-        { name: 'DS/Piece', value: String(statPlayer.dsp.toFixed(4)), inline: true },
-        { name: 'APP+DS/Piece', value: String(statPlayer.dsapp.toFixed(4)), inline: true },
-        { name: 'APP', value: String(statPlayer.app.toFixed(4)), inline: true },
-        { name: 'VS/APM', value: String(statPlayer.vsapm.toFixed(4)), inline: true },
-        { name: 'Cheese Index', value: String(statPlayer.ci.toFixed(4)), inline: true },
-        { name: 'Garbage Effi.', value: String(statPlayer.ge.toFixed(4)), inline: true },
-        { name: 'Weighted APP', value: String(statPlayer.wapp.toFixed(4)), inline: true },
-        { name: 'Area', value: String(statPlayer.area.toFixed(4)), inline: true },
+        { name: 'APM', value: statPlayer.apm.toFixed(2), inline: true },
+        { name: 'PPS', value: statPlayer.pps.toFixed(2), inline: true },
+        { name: 'VS', value: statPlayer.vs.toFixed(2), inline: true },
+        { name: 'DS/Second', value: statPlayer.dss.toFixed(4), inline: true },
+        { name: 'DS/Piece', value: statPlayer.dsp.toFixed(4), inline: true },
+        { name: 'APP+DS/Piece', value: statPlayer.dsapp.toFixed(4), inline: true },
+        { name: 'APP', value: statPlayer.app.toFixed(4), inline: true },
+        { name: 'VS/APM', value: statPlayer.vsapm.toFixed(4), inline: true },
+        { name: 'Cheese Index', value: statPlayer.ci.toFixed(4), inline: true },
+        { name: 'Garbage Effi.', value: statPlayer.ge.toFixed(4), inline: true },
+        { name: 'Weighted APP', value: statPlayer.wapp.toFixed(4), inline: true },
+        { name: 'Area', value: statPlayer.area.toFixed(4), inline: true },
       )
     if (statPlayer.glicko != 0) { // So that this won't show if you're just inputting stats     
       exampleEmbed.addFields(
-        { name: 'Glicko', value: String(statPlayer.glicko.toFixed(2) + " ±" + statPlayer.rd.toFixed(2)), inline: true },
-        { name: 'TR', value: String(statPlayer.tr.toFixed(2)), inline: true },
+        { name: 'Glicko', value: statPlayer.glicko.toFixed(2) + " ±" + statPlayer.rd.toFixed(2), inline: true },
+        { name: 'TR', value: statPlayer.tr.toFixed(2), inline: true },
         { name: 'Rank', value: String(statPlayer.rank).toUpperCase(), inline: true }, // Slice removes surrounding quotes.
       )
     }
@@ -2446,12 +2446,12 @@ async function tetostat(name) {
       //.setThumbnail('https://tetr.io/user-content/avatars/' + statPlayer.id + '.jpg?rv=' + statPlayer.avatar)
       .setDescription("sheetBot - A bot used to grab more advanced statistics from the ch.tetr.io API")
       .addFields( // Simply add all the lines.
-        { name: 'APM', value: String(statPlayer.apm.toFixed(2)), inline: true }, // This one in particular needs it
-        { name: 'PPS', value: String(statPlayer.pps.toFixed(2)), inline: true },
-        { name: 'VS', value: String(statPlayer.vs.toFixed(2)), inline: true },
-        { name: 'DS/Piece', value: String(statPlayer.dsp.toFixed(4)), inline: true },
-        { name: 'APP', value: String(statPlayer.app.toFixed(4)), inline: true },
-        { name: 'APP+DS/Piece', value: String(statPlayer.dsapp.toFixed(4)), inline: true },
+        { name: 'APM', value: statPlayer.apm.toFixed(2), inline: true }, // This one in particular needs it
+        { name: 'PPS', value: statPlayer.pps.toFixed(2), inline: true },
+        { name: 'VS', value: statPlayer.vs.toFixed(2), inline: true },
+        { name: 'DS/Piece', value: statPlayer.dsp.toFixed(4), inline: true },
+        { name: 'APP', value: statPlayer.app.toFixed(4), inline: true },
+        { name: 'APP+DS/Piece', value: statPlayer.dsapp.toFixed(4), inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
         { name: 'Rank', value: String(statPlayer.rank).toUpperCase(), inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
