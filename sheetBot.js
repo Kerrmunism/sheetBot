@@ -186,7 +186,7 @@ getData("https://ch.tetr.io/api/users/by/league?limit=100") // Call the getData 
 
 async function assign(value) { // This assigns all the data that you've loaded to the different variables.
   let generalChannelLocal = generalChannel // Set the general channel.
-  playerCount = value.data.entries.length // Set the search length to the number of ranked users.
+  playerCount = ('entries' in value.data ? value.data.entries.length : 0)
   console.log("Assign data is running.")
   for (let i = 0; i < playerCount; i++) {
     if (value.data.entries[i].league.apm != null) { // If the player's APM isn't null (meaning they exist and aren't banned somehow)
@@ -200,7 +200,7 @@ async function assign(value) { // This assigns all the data that you've loaded t
         value.data.entries[i] // The whole of the data for each user.
       )
       // Then add the following to the class for each player since they aren't built in.
-      tmp.position = i + 1 + (100 * (loopCount - 1)) // Position on the TL leaderboard
+      tmp.position = i + 1 + (playerCount * (loopCount - 1)) // Position on the TL leaderboard
       pList.push(tmp) // Push this player to the player list.
     } else { // Otherwise, remove them from the list entirely and decrement the loop.
       value.data.entries.splice(i, 1);
@@ -213,10 +213,13 @@ async function assign(value) { // This assigns all the data that you've loaded t
   //fs.writeFile("./stats/all.txt", JSON.stringify(pList), (err) => { if (err) throw err; })
   //w("apm"); w("pps"); w("vs"); w("app"); w("dsp"); w("dss"); w("dsapp"); w("vsapm"); w("glicko"); w("area"); w("srarea"); w("estglicko"); w("atr"); w("position"); w("estglicko"); //w("aglicko") // Log a bunch of stats
   //console.log(g("pps"))
+  if (pList.length % 1000 == 0) {
+    client.user.setActivity("Loading... (" + (pList.length/1000) + "k/~50k)")
+  }
   console.log("The player count is: " + pList.length + ", with " + playerCount + " just added.")
   if (playerCount == 100) {
-    console.log("The last player left off on is: " + pList[(100 * loopCount) - 1].name)
-    getData("https://ch.tetr.io/api/users/by/league?after=" + pList[(100 * loopCount) - 1].tr + ":0:0&limit=100")
+    console.log("The last player left off on is: " + pList[(playerCount * loopCount) - 1].name)
+    getData("https://ch.tetr.io/api/users/by/league?after=" + pList[(playerCount * loopCount) - 1].tr + ":0:0&limit=100")
     loopCount += 1;
   } else {
     //fetchUnranked()
@@ -376,8 +379,8 @@ async function averagePlayers() {
     totPlayersSort += rankCount[i]
     avgPlayers.push(tmp)
     //console.log(totPlayersSort)
-    client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
   }
+  //client.user.setActivity("on " + g("name")[(Math.floor(Math.random() * pList.length - 1))] + "'s account")
   playerNames.push("$avgAL") // Add average of all players as a parameter. This isn't made as "$avgALL" due to some jank code with !ts
   let tmp = new Player("$avgAL",
     g("apm").reduce((a, b) => a + b, 0) / pList.length,
@@ -398,10 +401,10 @@ async function averagePlayers() {
   let guild = await client.guilds.fetch(config.yourGuildID);
   let channel = await guild.channels.fetch(config.generalChannelID);
   await channel.send("Ready!");
+  everythingElse()
   loopCount = 0
   console.log(g("name"))
 }
-everythingElse()
 
 function everythingElse() {
   client.on('message', (text) => {
@@ -521,12 +524,38 @@ function everythingElse() {
     if (command == "rnk") { // Not started
       rankStat(name)
     }
+    if (command == "speedburst") {
+      speedburst(name)
+    }
     /*
     if (command == "prefix") { // Again, disabled because it already got set.
       prefix(name)
     }
     */
   }
+}
+
+async function speedburst(name) {
+  let generalChannelLocal = generalChannel;
+  if (name.length != 4) { // Too many parameters
+    client.channels.cache.get(generalChannelLocal).send("Wrong number of arguments. The format should be `[pieces1] [time1] [pieces2] [time2]`")
+    return
+  }
+  for (let i = 0; i < 4; i++) {
+    if (String(name[i]).includes(":") && String(name[i]).match(/:/g).length == 1) {
+      name[i] = Number(name[i].substr(0, name[i].indexOf(":")) * 60 + Number(name[i].substr(name[i].indexOf(":") + 1, name[i].length - 1)))
+    } else {
+      if (Number(name[i]) != String(name[i])) {
+        client.channels.cache.get(generalChannelLocal).send("One of the arguments is not a number or has an incorrectly formatted time.")
+        return
+      }
+    }
+  }
+  if (Number(name[0]) > Number(name[2]) || Number(name[3]) < Number(name[1])) {
+    client.channels.cache.get(generalChannelLocal).send("Your second pieces (or time) can't be less than your first!")
+    return
+  }
+  return client.channels.cache.get(generalChannelLocal).send("The speed burst is **" + String(Number((name[2] - name[0]) / (name[3] - name[1])).toFixed(5)) + " PPS**")
 }
 
 async function prefixcommand(name, prefix, text) {
@@ -658,7 +687,7 @@ function refresh() { // Now using pm2 to restart the bot.
   // Using manager.bat can also be useful.
   async function firstFunction() {
     client.user.setActivity("Restarting...")
-    return client.channels.cache.get(generalChannel).send("Refreshing... (This may take up to 2 minutes to complete.)")
+    return client.channels.cache.get(generalChannel).send("Refreshing... (This may take up to 5 minutes to complete.)")
   };
   async function secondFunction() {
     await firstFunction();
@@ -1078,11 +1107,11 @@ function getAverage(name, median) {
       ) + ((countrySearch != "zz") ? " in country " + countrySearch : "")
     )
     .setAuthor('Kerrmunism / explorat0ri', 'https://kerrmunism.neocities.org/kapo.PNG', 'https://github.com/Kerrmunism')
-    .setThumbnail((countrySearch == "zz") ? 'https://tetr.io/res/league-ranks/' + rankArray[rankSearchTop] + ".png" : 'https://tetr.io/res/flags/' + countrySearch.toLowerCase() + '.png')
+    .setThumbnail((countrySearch == "zz") ? 'https://tetr.io/res/league-ranks/' + rankArray[rankSearchTop] + ".png" : (countrySearch != null) ? 'https://tetr.io/res/flags/' + countrySearch.toLowerCase() + '.png' : "")
     .setDescription("sheetBot - A bot used to grab more advanced statistics from the ch.tetr.io API")
     .addFields( // Simply add all the lines.
       {
-        name: 'APM', value: (avgPlayer.apm.toFixed(4) +
+        name: 'APM', value: (((countrySearch == "zz") ? avgPlayer.apm.toFixed(4) : avgCountryPlayer.apm.toFixed(4))  +
           (
             (countrySearch != "zz")
               ? " (" +
@@ -1096,21 +1125,21 @@ function getAverage(name, median) {
           )
         ), inline: true
       }, // Gonna reduce to a one-liner for the other stats but it's the same principle
-      { name: 'PPS', value: (avgPlayer.pps.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.pps - avgPlayer.pps >= 0) ? "**+" + (avgCountryPlayer.pps - avgPlayer.pps).toFixed(4) + "**" : "*" + (avgCountryPlayer.pps - avgPlayer.pps).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'VS', value: (avgPlayer.vs.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.vs - avgPlayer.vs >= 0) ? "**+" + (avgCountryPlayer.vs - avgPlayer.vs).toFixed(4) + "**" : "*" + (avgCountryPlayer.vs - avgPlayer.vs).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'DS/Second', value: (avgPlayer.dss.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dss - avgPlayer.dss >= 0) ? "**+" + (avgCountryPlayer.dss - avgPlayer.dss).toFixed(4) + "**" : "*" + (avgCountryPlayer.dss - avgPlayer.dss).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'DS/Piece', value: (avgPlayer.dsp.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dsp - avgPlayer.dsp >= 0) ? "**+" + (avgCountryPlayer.dsp - avgPlayer.dsp).toFixed(4) + "**" : "*" + (avgCountryPlayer.dsp - avgPlayer.dsp).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'APP+DS/Piece', value: (avgPlayer.dsapp.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dsapp - avgPlayer.dsapp >= 0) ? "**+" + (avgCountryPlayer.dsapp - avgPlayer.dsapp).toFixed(4) + "**" : "*" + (avgCountryPlayer.dsapp - avgPlayer.dsapp).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'APP', value: (avgPlayer.app.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.app - avgPlayer.app >= 0) ? "**+" + (avgCountryPlayer.app - avgPlayer.app).toFixed(4) + "**" : "*" + (avgCountryPlayer.app - avgPlayer.app).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'VS/APM', value: (avgPlayer.vsapm.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.vsapm - avgPlayer.vsapm >= 0) ? "**+" + (avgCountryPlayer.vsapm - avgPlayer.vsapm).toFixed(4) + "**" : "*" + (avgCountryPlayer.vsapm - avgPlayer.vsapm).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'Cheese Index', value: (avgPlayer.ci.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.ci - avgPlayer.ci >= 0) ? "**+" + (avgCountryPlayer.ci - avgPlayer.ci).toFixed(4) + "**" : "*" + (avgCountryPlayer.ci - avgPlayer.ci).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'Garbage Effi.', value: (avgPlayer.ge.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.ge - avgPlayer.ge >= 0) ? "**+" + (avgCountryPlayer.ge - avgPlayer.ge).toFixed(4) + "**" : "*" + (avgCountryPlayer.ge - avgPlayer.ge).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'Area', value: (avgPlayer.area.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.area - avgPlayer.area >= 0) ? "**+" + (avgCountryPlayer.area - avgPlayer.area).toFixed(4) + "**" : "*" + (avgCountryPlayer.area - avgPlayer.area).toFixed(4) + "*") + ")" : "")), inline: true },
-      { name: 'Weighted APP', value: (avgPlayer.wapp.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.wapp - avgPlayer.wapp >= 0) ? "**+" + (avgCountryPlayer.wapp - avgPlayer.wapp).toFixed(4) + "**" : "*" + (avgCountryPlayer.wapp - avgPlayer.wapp).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'PPS', value: (((countrySearch == "zz") ? avgPlayer.pps.toFixed(4) : avgCountryPlayer.pps.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.pps - avgPlayer.pps >= 0) ? "**+" + (avgCountryPlayer.pps - avgPlayer.pps).toFixed(4) + "**" : "*" + (avgCountryPlayer.pps - avgPlayer.pps).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'VS', value: (((countrySearch == "zz") ? avgPlayer.vs.toFixed(4) : avgCountryPlayer.vs.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.vs - avgPlayer.vs >= 0) ? "**+" + (avgCountryPlayer.vs - avgPlayer.vs).toFixed(4) + "**" : "*" + (avgCountryPlayer.vs - avgPlayer.vs).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'DS/Second', value: (((countrySearch == "zz") ? avgPlayer.dss.toFixed(4) : avgCountryPlayer.dss.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dss - avgPlayer.dss >= 0) ? "**+" + (avgCountryPlayer.dss - avgPlayer.dss).toFixed(4) + "**" : "*" + (avgCountryPlayer.dss - avgPlayer.dss).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'DS/Piece', value: (((countrySearch == "zz") ? avgPlayer.dsp.toFixed(4) : avgCountryPlayer.dsp.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dsp - avgPlayer.dsp >= 0) ? "**+" + (avgCountryPlayer.dsp - avgPlayer.dsp).toFixed(4) + "**" : "*" + (avgCountryPlayer.dsp - avgPlayer.dsp).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'APP+DS/Piece', value: (((countrySearch == "zz") ? avgPlayer.dsapp.toFixed(4) : avgCountryPlayer.dsapp.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.dsapp - avgPlayer.dsapp >= 0) ? "**+" + (avgCountryPlayer.dsapp - avgPlayer.dsapp).toFixed(4) + "**" : "*" + (avgCountryPlayer.dsapp - avgPlayer.dsapp).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'APP', value: (((countrySearch == "zz") ? avgPlayer.app.toFixed(4) : avgCountryPlayer.app.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.app - avgPlayer.app >= 0) ? "**+" + (avgCountryPlayer.app - avgPlayer.app).toFixed(4) + "**" : "*" + (avgCountryPlayer.app - avgPlayer.app).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'VS/APM', value: (((countrySearch == "zz") ? avgPlayer.vsapm.toFixed(4) : avgCountryPlayer.vsapm.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.vsapm - avgPlayer.vsapm >= 0) ? "**+" + (avgCountryPlayer.vsapm - avgPlayer.vsapm).toFixed(4) + "**" : "*" + (avgCountryPlayer.vsapm - avgPlayer.vsapm).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'Cheese Index', value: (((countrySearch == "zz") ? avgPlayer.ci.toFixed(4) : avgCountryPlayer.ci.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.ci - avgPlayer.ci >= 0) ? "**+" + (avgCountryPlayer.ci - avgPlayer.ci).toFixed(4) + "**" : "*" + (avgCountryPlayer.ci - avgPlayer.ci).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'Garbage Effi.', value: (((countrySearch == "zz") ? avgPlayer.ge.toFixed(4) : avgCountryPlayer.ge.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.ge - avgPlayer.ge >= 0) ? "**+" + (avgCountryPlayer.ge - avgPlayer.ge).toFixed(4) + "**" : "*" + (avgCountryPlayer.ge - avgPlayer.ge).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'Area', value: (((countrySearch == "zz") ? avgPlayer.area.toFixed(4) : avgCountryPlayer.area.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.area - avgPlayer.area >= 0) ? "**+" + (avgCountryPlayer.area - avgPlayer.area).toFixed(4) + "**" : "*" + (avgCountryPlayer.area - avgPlayer.area).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'Weighted APP', value: (((countrySearch == "zz") ? avgPlayer.wapp.toFixed(4) : avgCountryPlayer.wapp.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.wapp - avgPlayer.wapp >= 0) ? "**+" + (avgCountryPlayer.wapp - avgPlayer.wapp).toFixed(4) + "**" : "*" + (avgCountryPlayer.wapp - avgPlayer.wapp).toFixed(4) + "*") + ")" : "")), inline: true },
       { name: 'Members', value: ((countrySearch != "zz" ? String(countryPList.length) : String(tempPList.length))), inline: true },
       //{ name: 'TR Needed', value: percentilePList[percentilePList.length - 1].tr.toFixed(4), inline: true },
       // Wasn't able to implement the above yet, though I plan on working on it sometime soon.
-      { name: 'TR', value: (avgPlayer.tr.toFixed(4) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.tr - avgPlayer.tr >= 0) ? "**+" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "**" : "*" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "*") + ")" : "")), inline: true },
+      { name: 'TR', value: (((countrySearch == "zz") ? avgPlayer.tr.toFixed(4) : avgCountryPlayer.tr.toFixed(4)) + ((countrySearch != "zz") ? " (" + ((avgCountryPlayer.tr - avgPlayer.tr >= 0) ? "**+" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "**" : "*" + (avgCountryPlayer.tr - avgPlayer.tr).toFixed(4) + "*") + ")" : "")), inline: true },
     )
     .addField("Want to know more?", "Use !help calcs for calculation info `^v^`")
     .setTimestamp()
