@@ -80,10 +80,13 @@ class Player {
     }
     //this.estglicko = (4.0867 * this.srarea + 186.68)
     this.estglicko = (0.000013 * (((this.pps * (150 + ((this.vsapm - 1.66) * 35)) + this.app * 290 + this.dsp * 700)) ** 3) - 0.0196 * (((this.pps * (150 + ((this.vsapm - 1.66) * 35)) + this.app * 290 + this.dsp * 700)) ** 2) + (12.645 * ((this.pps * (150 + ((this.vsapm - 1.66) * 35)) + this.app * 290 + this.dsp * 700))) - 1005.4)
-    this.esttr = 25000 / (1 + 10 ** (((1500 - this.estglicko) * Math.PI) / (Math.sqrt(((3 * Math.log(10) ** 2) * 60 ** 2) + (2500 * ((64 * Math.PI ** 2) + (147 * Math.log(10) ** 2)))))))
+    // Adjustment for s2 below
+    this.estglicko = (this.estglicko * 0.9211) - 49.086
+    // Original s1 formula below
+    //this.esttr = 25000 / (1 + 10 ** (((1500 - this.estglicko) * Math.PI) / (Math.sqrt(((3 * Math.log(10) ** 2) * 60 ** 2) + (2500 * ((64 * Math.PI ** 2) + (147 * Math.log(10) ** 2)))))))
+    
     //this.esttr = Number(Number(25000 / (1 + (10 ** (((1500 - ((4.0867 * this.srarea + 186.68))) * 3.14159) / (((15.9056943314 * (this.rd ** 2) + 3527584.25978) ** 0.5)))))).toFixed(2))
     // ^ Estimated TR
-    this.atr = this.esttr - this.tr // Accuracy of TR Estimate
     //this.aglicko = this.estglicko - this.glicko
     this.opener = Number(Number(Number((((this.apm / this.srarea) / ((0.069 * 1.0017 ** ((this.sr ** 5) / 4700)) + this.sr / 360) - 1) + (((this.pps / this.srarea) / (0.0084264 * (2.14 ** (-2 * (this.sr / 2.7 + 1.03))) - this.sr / 5750 + 0.0067) - 1) * 0.75) + (((this.vsapm / (-(((this.sr - 16) / 36) ** 2) + 2.133) - 1)) * -10) + ((this.app / (0.1368803292 * 1.0024 ** ((this.sr ** 5) / 2800) + this.sr / 54) - 1) * 0.75) + ((this.dsp / (0.02136327583 * (14 ** ((this.sr - 14.75) / 3.9)) + this.sr / 152 + 0.022) - 1) * -0.25)) / 3.5) + 0.5).toFixed(4))
     this.plonk = Number(Number((((this.ge / (this.sr / 350 + 0.005948424455 * 3.8 ** ((this.sr - 6.1) / 4) + 0.006) - 1) + (this.app / (0.1368803292 * 1.0024 ** ((this.sr ** 5) / 2800) + this.sr / 54) - 1) + ((this.dsp / (0.02136327583 * (14 ** ((this.sr - 14.75) / 3.9)) + this.sr / 152 + 0.022) - 1) * 0.75) + (((this.pps / this.srarea) / (0.0084264 * (2.14 ** (-2 * (this.sr / 2.7 + 1.03))) - this.sr / 5750 + 0.0067) - 1) * -1)) / 2.73) + 0.5).toFixed(4))
@@ -110,6 +113,8 @@ class Player {
         this.wr = (this.wins / this.games) * 100 // TL winrate
       }
       this.avatar = data.avatar_revision
+      this.esttr = (22000 / ((1 + (Math.E ** (-(1 + (60 - this.rd) / 1500) * 1.56 * ((this.estglicko - 1500) / 500)))) ** (1 / (0.87646605 * (Math.min(1, 0.5 + 0.5 * (this.wins / 18))))))) + (3000 / ((1 + (Math.E ** (-(1 + (60 - this.rd) / 1500) * 0.86 * ((this.estglicko - 2000) / 500)))) ** (1 / (0.25 * ((Math.min(1, 0.5 + 0.5 * (this.wins / 18))) ** 2)))));
+      this.atr = this.esttr - this.tr // Accuracy of TR Estimate      this.atr = this.esttr - this.tr // Accuracy of TR Estimate  
       // this.position = pList.map(pList => pList.name).indexOf(this.name)
       // The above works but it was horrifically slow.
     } else { // Otherwise...
@@ -121,6 +126,8 @@ class Player {
       this.games = -1 // TL games played
       this.wins = -1 // TL wins
       this.wr = -1 // TL winrate
+      this.esttr = (22000 / ((1 + (Math.E ** (-(1 + (60 - this.rd) / 1500) * 1.56 * ((this.estglicko - 1500) / 500)))) ** (1 / (0.87646605 * (Math.min(1, 0.5 + 0.5 * (18 / 18))))))) + (3000 / ((1 + (Math.E ** (-(1 + (60 - this.rd) / 1500) * 0.86 * ((this.estglicko - 2000) / 500)))) ** (1 / (0.25 * ((Math.min(1, 0.5 + 0.5 * (18 / 18))) ** 2)))));
+      this.atr = this.esttr - this.tr // Accuracy of TR Estimate     
     }
   }
 }
@@ -213,13 +220,14 @@ async function assign(value) { // This assigns all the data that you've loaded t
   //fs.writeFile("./stats/all.txt", JSON.stringify(pList), (err) => { if (err) throw err; })
   //w("apm"); w("pps"); w("vs"); w("app"); w("dsp"); w("dss"); w("dsapp"); w("vsapm"); w("glicko"); w("area"); w("srarea"); w("estglicko"); w("atr"); w("position"); w("estglicko"); //w("aglicko") // Log a bunch of stats
   //console.log(g("pps"))
+  w("glicko"); w("estglicko"); w("tr"); w("esttr"); w("atr");
   if (pList.length % 1000 == 0) {
-    client.user.setActivity("Loading... (" + (pList.length/1000) + "k/~50k)")
+    client.user.setActivity("Loading... (" + (pList.length / 1000) + "k/~50k)")
   }
   console.log("The player count is: " + pList.length + ", with " + playerCount + " just added.")
-  if (playerCount == 100) {
-    console.log("The last player left off on is: " + pList[(playerCount * loopCount) - 1].name)
-    getData("https://ch.tetr.io/api/users/by/league?after=" + pList[(playerCount * loopCount) - 1].tr + ":0:0&limit=100")
+  if (pList.length < 1000) {
+    console.log("The last player left off on is: " + pList[pList.length - 1].name)
+    getData("https://ch.tetr.io/api/users/by/league?after=" + pList[pList.length - 1].tr + ":0:0&limit=100")
     loopCount += 1;
   } else {
     //fetchUnranked()
@@ -1111,7 +1119,7 @@ function getAverage(name, median) {
     .setDescription("sheetBot - A bot used to grab more advanced statistics from the ch.tetr.io API")
     .addFields( // Simply add all the lines.
       {
-        name: 'APM', value: (((countrySearch == "zz") ? avgPlayer.apm.toFixed(4) : avgCountryPlayer.apm.toFixed(4))  +
+        name: 'APM', value: (((countrySearch == "zz") ? avgPlayer.apm.toFixed(4) : avgCountryPlayer.apm.toFixed(4)) +
           (
             (countrySearch != "zz")
               ? " (" +
